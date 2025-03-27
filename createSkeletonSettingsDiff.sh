@@ -32,16 +32,24 @@ adb shell settings list system > /tmp/settingsSystem
 adb shell settings list secure > /tmp/settingsSecure
 
 
-diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" /tmp/settingsGlobal skeleton/vanilla/settingsGlobal > skeleton/settingsGlobal
-diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" /tmp/settingsSecure skeleton/vanilla/settingsSecure > skeleton/settingsSecure
-diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" /tmp/settingsSystem skeleton/vanilla/settingsSystem > skeleton/settingsSystem
+diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" skeleton/vanilla/settingsGlobal /tmp/settingsGlobal > skeleton/settingsGlobal
+diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" skeleton/vanilla/settingsSecure /tmp/settingsSecure > skeleton/settingsSecure
+diff --new-line-format="%L" --old-line-format="" --unchanged-line-format="" skeleton/vanilla/settingsSystem /tmp/settingsSystem > skeleton/settingsSystem
 
 # Remove settings that will change during setup usually like brightness and chargetime
 #   doze/sleep state
     sed -i '/^restart_nap_after_start/d' skeleton/settingsSecure
+    #sed -i '/^night_display_activated/d' skeleton/settingsSecure
+    sed -i '/^night_display_last_activated_time/d' skeleton/settingsSecure
 
 #   Screen Brightness
     sed -i '/^screen_brightness/d' skeleton/settingsSystem
+
+# Remove changed bluetooth and device name
+    sed -i '/^device_name/d' skeleton/settingsGlobal
+    sed -i '/^bluetooth_name/d' skeleton/settingsSecure
+
+
 
 echo "Changed in Settings Global: "
 echo "--------------------------- "

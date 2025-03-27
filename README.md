@@ -95,10 +95,14 @@ Take a new vanilla device your user is eagerly awaiting and enable ADB.
 Here's what this script will do in complete order
 
 1. Installs the initial Apps first. Now acknowledge to the script that the device is rooted.
-2. Copies the contents of skeleton/sdcard to /sdcard
-3. Applies all skeleton/settings via `adb shell settings set`
-4. Runs all tasks-scripts in skeleton/taskScripts. See the folder for details, here are the default scripts and you can ofc already add some:
-    1. 001-enable
+2. Applies all skeleton/settings via `adb shell settings set`
+3. Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
+
+4. Runs all admin-tasks-scripts in skeleton/adminTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
+    1. 001-enableFixedAdbWirelessViaWiredAdb - what the filename says
+    2. 010-copyInternalStorageContent - copies skeleton/sdcard to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that)
+    3. 100-grabDomainED25519CACerts - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves it to the device on sdcard/ca.domain.tld.crt for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ed25519 cas in your domain using opnsense or openwrt
+
     2. Pre-Setup openvpn by copying all files from `skeleton/openvpn` to `/sdcard/openvpn`
     3. Pre-Setup openvpn for this device by copying `devicename.domain.tld.crt` and `devicename.domain.tld.key` from `openvpnKeys` to `sdcard/openvpn` - this does nothing if no file matching is found
 5. Copies the standard sshd-starter script for Termux:Boot from `skeleton/termuxBoot` to `/data/data/com.termux/files/home/.termux/boot`. You may need to restart the device later for this to work and other than that it works there is no indication that the script is running.
