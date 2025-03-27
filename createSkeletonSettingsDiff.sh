@@ -6,6 +6,12 @@ if [ ! -s "skeleton/vanilla/settingsGlobal" ] || [ ! -s "skeleton/vanilla/settin
   exit 1
 fi
 
+./checkUserHasAdbAndRsyncLocally.sh
+if [ $? -ne 0 ]; then
+    echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
+    exit 1
+fi
+
 ./checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "🩻 Skeleton donor device not connected! Exiting..."

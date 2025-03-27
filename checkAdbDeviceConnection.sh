@@ -14,7 +14,7 @@ fi
 
 # Check if the second line contains "device" and not "unauthorized"
 if echo "$adb_output" | tail -n 1 | grep -q "device"; then
-  echo "Device is properly connected and authorized."
+  echo "✅Device is properly connected and authorized."
 else
   echo "Error: Device is not in a proper state. Authenticate the device."
   exit 1
