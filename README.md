@@ -6,9 +6,9 @@
 
 This will turn your androids into somewhat working and secure linux machines without raising your pinky all that much. I wrote this to have customers get usable devices in the managed domains i set up which provide an environment that has certain standards like NFS-Servers at shares.domain.tld or homes.domain.tld - you can skip those, but it's meant for these mainly.
 
-If you are used to having control an reproducible setup of your debian-machine this tool is the right tool for you.
+If you are used to having control over a reproducible setup for your debian-machine this tool is the right tool for you.
 
-If you want to customize this to your usecase PLEASE FORK IT AND DON'T BUG ME WITH ISSUES.
+If you want to customize this to your usecase just fork it, issues should be about the usecase here, not yours!
 
 Its roughly 2-step:
 
@@ -16,9 +16,7 @@ Its roughly 2-step:
 
     For customers running 100s of roadwarriors you can use the openvpnKey-folder for openvpn and provision the devices key and cert automatically. This is the only "key" you store on the device, so make sure you can mark the key revoked even though it lives on encrypted internal storage. Without openvpn your devices can only be synced while in Wifi which you DO NOT WANT. Your device will not get lost while logged in wifi but outside on trips. Use OpenVPN!
 
-- All 👶 Users periodically run `backup.sh $devicename` from a domain server or the userspace session. You can backup manually or by cron /systemD Service so the user can lose the device safely.
-
-Backups run non-interactive over adb wireless and rsync, so the device has to be mapped in dhcp correctly over wifi or vpn.
+- All 👶 Users set up their fresh device once (1 -> 1), then only periodically run `backup.sh` from a domain server or the userspace session. You can backup manually or by cron /systemD Service so the user can lose the device safely. You only need adb keys for app backups, all "normal" data can be pulled via rsync. If you have a roaming nfs-home server its easy to just use the ssh and adb keys from the users home to do this without the user having to start this in userspace.
 
 Restoring the device means an admin will autoprovision a new one, then the user runs `restore.sh` once with his .android/$devicename backup.
 
@@ -46,13 +44,16 @@ This is a long part, but you only have to do this once for the whole domain.
 
 All scripts are simple morphisms to not overcomplicate things and allow you to change behaiviour with simple task-scripts or files added in. To start you set up 1 🥼 vanilla device as a donor for settings you want set across all fleet devices.
 
-## 🌱 0 -> N Initial - App download and 🥼 Vanilla Device Setup (Admin)
+## 🌱 0 -> N Initial - App download and 🥼 Vanilla Device Settings Grab (Admin)
 
-Buy a compatible device from Motorola or Sony and do not use other vendors.
 
 - Run `updateInitialApps.sh` to pull Apps from F-Droid that will be installed on all devices, you can just add packages from fdroid for the usecase that covers all your fleet devices in the domain. The script automatically grabs the latest version. Add Aurora-Store if you must use any Apps from Playstore.
 
-Connect a 🥼 vanilla lineage device. Enable ADB.
+- Buy a compatible, unlockable device with Slot A/B Support from Motorola or Sony and do not use other vendors.
+
+- Install Lineage, you don't need any gapps addons, but if you are lazy you can flash magisk as a zip already and save on one restart after inital Apps install.
+
+- Connect this fresh 🥼 vanilla lineage device. Enable ADB.
 
 - Run `installInitialApps.sh` with the 🥼 vanilla device attached. We need termux and magisk at the very minimum to continue with a rooted device. You can use this script on fleet devices too, but autoprovisioning will take care of the initial Apps there.
 
@@ -62,25 +63,15 @@ Now on the 🥼 vanilla device make sure Magisk works, then enable adb root in d
 
 ## 🩻 0 -> 1 Initial - Customize the skeleton
 
-Now on the device(!) change all settings you want captured and set on all devices in the fleet. If you need a custom wallpaper or ringtone you can place files you want on all devices into `skeleton/sdcard` - these will be copied to the internal mmc.
+Now on the so far vanilla device change all settings you want captured and later set on all devices in the fleet. If you need a custom wallpaper or ringtone you can place files you want on all devices into `skeleton/sdcard` - these will be copied to the internal mmc.
 
-Run `createSkeletonSettingsDiff.sh` - this script diffs your settings into `skeleton/settings` and removes settings that will change during setup (screen brightness, charging time, etc.)
+Run `createSkeletonSettingsDiff.sh` - this script diffs your settings into `skeleton/settings` and removes some settings that i noticed will change during setup (screen brightness, charging time, etc.)
 
 These scripts take no arguments, so make sure it's the only device attached.
 
-#### 🍫 Bonus: Skeleton App Support for Termux and OpenVPN
+🔕 Note on ringtones: I will not implement the logic needed to change the default sounds as android uses some magic MediaID that will no be the same on 2 different devices. If you really insist on forcing a ringtone, chargetone, whatever onto the user outside offering it via sdcard/Ringtones you can use a script and figure it out yourself. I leave the functionality to do it out of the scope of droidfor.ge so you don't nag your employees with some stupid dancing company-jingle or sth.
 
-Inside skeleton you find the folders termux and openvpn. You can place any scripts you want in the termux apps user home (`/data/data/com.termux/files/home` but no one can remember that).
-
-- droidfor.ge provides `fixedAdbWirelessPort.sh` to enable the user to reapply fixed adb wireless on port 5555 if this setting gets lost - on my devices these survive a reboot and upgrade though.
-
-For openvpn you should only place the ca.crt for your domain or a cert-agnostic openvpn-profile in `skeleton/openvpn` - these files get copied to `/sdcard/openvpn` so you can select them in the openvpn profile later. Files in /sdcard are encrypted by default, still remember to mark the cert lost if the device is lost.
-
-Never store sensitive information which is not absoluteley needed on the device. 👶 Users WILL lose the device while unlocked.
-
-#### OpenVPN autoprovisioning of user cert and key
-
-The user-key and certificate will be placed on the device during autoprovision by taking the keys from openvpn-keys and copy these renamed onto /sdcard/openvpn/user.crt and /sdcard/openvpn/user.key. If your profile has the parameters correct you can skip customizing the openvpn profile and keep a generic config, thus saving you some clicking on all fleet devices.
+Note on input settings: If you want to customize the default keyboard that comes with lineage, the package name is `com.android.inputmethod.latin` and can be backupped from the skeleton device and be placed into skeleton/apps.
 
 # 👨‍🏭 Admin tasks per device
 
@@ -99,13 +90,14 @@ Here's what this script will do in complete order
 3. Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
 
 4. Runs all admin-tasks-scripts in skeleton/adminTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
-    1. 001-enableFixedAdbWirelessViaWiredAdb - what the filename says
-    2. 010-copyInternalStorageContent - copies skeleton/sdcard to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that)
-    3. 100-grabDomainED25519CACerts - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves it to the device on sdcard/ca.domain.tld.crt for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ed25519 cas in your domain using opnsense or openwrt
+    1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says
+    2. `010-copyInternalStorageContent` - copies skeleton/sdcard to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
+    3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ed25519 cas in your domain using opnsense or openwrt and a webserver
 
-    2. Pre-Setup openvpn by copying all files from `skeleton/openvpn` to `/sdcard/openvpn`
-    3. Pre-Setup openvpn for this device by copying `devicename.domain.tld.crt` and `devicename.domain.tld.key` from `openvpnKeys` to `sdcard/openvpn` - this does nothing if no file matching is found
-5. Copies the standard sshd-starter script for Termux:Boot from `skeleton/termuxBoot` to `/data/data/com.termux/files/home/.termux/boot`. You may need to restart the device later for this to work and other than that it works there is no indication that the script is running.
+    4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`
+    5. `201-openvpnDeviceCerts` - if found in openvpnKeys/ copies the device fqdn cert from f.e. `openvpnKeys/$devicename.domain.tld.crt/key` to `/sdcard/openvpn/device.crt/key` - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
+    6. `300-termuxBasicSetup` - Installs the normal repository and some basic packages, enables external storage setup and then copies the content of `skeleton/termux` into the termux home directory. If you install Termux:Boot the default contents of .termux/boot make sure sshd is started.
+    7. `500-skeletonApps` - Installs all apps in skeleton/apps. See the caption about manually backing up and restoring single apps. This can be used to set the default input keyboard f.e.
 
 The device is now ready to hand over to the user for further initial Setup and restore.
 
@@ -152,10 +144,22 @@ This will do the following changes on your Phone in standard, you can change the
 
 # Static path for SD-Cards
 
-If you want the users SD-Card to be found in a fixed path you can use e2fstools to format the card with a fixed UUID like this:
+If you want the users SD-Card to be found in a fixed path you can use exfatlabel from exfatprogs to format the card with a fixed UUID like this:
 
-    root@linux:~# apt install dosfstools mtools
-    root@linux:~# fatlabel /dev/$sdcardDevice "
+    $sdcardDevicePart is f.e. /dev/sdb1 or /dev/mmbblk0p1 
+
+    root@linux:~# apt install exfatprogs 
+    root@linux:~# exfatlabel /dev/$sdcardDevicePart 512GB-SD
+    root@linux:~# exfatlabel /dev/$sdcardDevicePart -i 0x12340512
+    root@linux:~# lsblk --fs
+    NAME   FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+    sdb                                                                           
+    └─sdb1 exfat  1.0   512GB-SD 1234-0512                                           
+                                                         
+    
+This will set the drives label NAME to "512GB-SD" and the UUID to 1234-0512. I recommend using the uid of the user the device will be provisioned to as the first part and the GB-size as the second.
+
+You can then access the external-sd in a reproducible manner, like `/storage/1234-0512` on the phone. exfatprogs is also available for android in termux if you want to do it there, you can even set this up as a script, take the 300-termux-setup as a template on how to automatically do termux commands via adb.
 
 ## App Files
 
