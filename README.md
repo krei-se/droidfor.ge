@@ -4,15 +4,15 @@ Auto provisioning and Backup/Restore solution for android fleet devices.
 
 Built for Phones with unlockable bootloaders, thus rootable lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
-- <text style="color: #FF0000">Domain</text>: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
+- $\color{red}{\textbf{Domain}}$: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
 
-- <text style="color: #0000FF">Machine</text>: The 👨‍🏭 Admin then integrates each device into the Managed Domain.
+- $\color{blue}{\textbf{Machine}}$: The 👨‍🏭 Admin then integrates each device into the Managed Domain.
 
-- <text style="color: #00FF00">User</text>: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
+- $\color{green}{\textbf{User}}$: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
 
 Turns your android phones into rooted, but secure and usuable domain clients. No Clouds!
 
-# 👨‍🏭 <text style="color: #FF0000">Domain</text> : for all devices
+# 👨‍🏭 $\color{red}{\textbf{Domain}}$ : for all devices
 
 ## 🍨 0 -> N Initial Preseeding
 
@@ -46,7 +46,7 @@ These scripts take no arguments, so make sure it's the only device attached.
 
 🔕 Note on ringtones: Ringtones are hard to autoprovision right, so they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/sdcard/Ringtones and not force one onto the user.
 
-# 👨‍🏭 <text style="color: #0000FF">Machine</text> : for a specific device
+# 👨‍🏭 $\color{blue}{\text{Machine}}$ : for a specific device
 
 With the skeleton ready for the domain, provision the devices one by one.
 
@@ -64,7 +64,7 @@ Here's what this script will do in complete order
 
 1. Installs the initial Apps first. If you forgot or dont want to install Magisk via Zip acknowledge to the script that the device is rooted.
 2. Applies all skeleton/settings via `adb shell settings set`
-3. Set device_name and bluetooth_name to the first part of the FQDN (<b><font color="0000FF">devicename</font>.<font color="#FF0000">domain.tld</font> -> <font color="#0000FF">devicename</font></b>)
+3. Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
 
 4. Runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
     1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says
@@ -83,7 +83,7 @@ Here's what this script will do in complete order
 
 The device is now ready to hand over to the user for further initial Setup and restore.
 
-# 👶 <text style="color: #00FF00">User</text> : for a specific device -> user
+# 👶 $\color{green}{\textbf{User}}$ : for a speficic device -> user
 
 Your user should have a working adb .android folder and keys in .ssh.
 
