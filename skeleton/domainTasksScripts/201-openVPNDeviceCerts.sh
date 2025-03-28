@@ -22,12 +22,12 @@ fi
 
 adb shell "mkdir -p /sdcard/openvpn"
 
-if [ -f "openvpnKeys/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.crt" ]; then
-    adb push openvpnKeys/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.crt /sdcard/openvpn/device.crt
+if [ -f "openvpnPKI/issued/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.crt" ]; then
+    adb push openvpnPKI/issued/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.crt /sdcard/openvpn/device.crt
 fi
 
-if [ -f "openvpnKeys/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.key" ]; then
-    adb push openvpnKeys/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.key /sdcard/openvpn/device.key
+if [ -f "openvpnPKI/private/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.key" ]; then
+    adb push openvpnPKI/private/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN.key /sdcard/openvpn/device.key
 fi
 
 # Try to get the ca cert from the TXT-record
@@ -38,6 +38,7 @@ URL=$(dig +short TXT "ed25519._tlsa.ca.${DROIDFORGEAUTOPROVISIONDOMAIN}" | sed '
 if [ -z "$URL" ];
     then
         echo "Error: No URL found for ca.$DROIDFORGEAUTOPROVISIONDOMAIN"
+        echo "Make sure to copy a ca.crt via skeleton/openvpn"
     else
         curl -o "/tmp/ca.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" "$URL"
         adb push "/tmp/ca.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" /sdcard/openvpn/ca.crt
