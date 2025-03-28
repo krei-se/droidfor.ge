@@ -1,12 +1,14 @@
-# 🤖 droidfor.ge - Bending Androids juuuuust right
+# 🤖 droidfor.ge
 
-Auto provisioning and Backup/Restore solution for android fleet devices.
+### Bending Androids juuuuust right
+
+### Auto provisioning and Backup/Restore solution for android fleet devices.
 
 Built for Phones with unlockable bootloaders, thus rootable lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
 - $\color{red}{\textbf{Domain}}$: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
 
-- $\color{blue}{\textbf{Machine}}$: The 👨‍🏭 Admin then integrates each device into the Managed Domain.
+- $\color{blue}{\textbf{Machine}}$: The 👨‍🏭 Admin integrates each device into the Managed Domain.
 
 - $\color{green}{\textbf{User}}$: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
 
@@ -18,7 +20,7 @@ Turns your android phones into rooted, but secure and usuable domain clients. No
 
 - Run `updateInitialApps.sh` to pull Apps from F-Droid that will be installed on all devices
 
-You can just add packages from fdroid in the script, it automatically grabs the latest version and allows to select versions ending in a certain integer if you need a specific architecture build . Add Aurora-Store if must use any Apps from Playstore.
+You can just add packages from fdroid in the script, it automatically grabs the latest version and allows to select versions ending in a certain integer if you need a specific architecture build. Add Aurora-Store if must use any Apps from Playstore.
 
 Install Lineage on a wiped device. You don't need any gapps addons, but if you are lazy you can flash magisk as a zip already.
 
@@ -36,43 +38,46 @@ Use the same device now as the 🩻 skeleton device
 
 ## 🩻 0 -> 1 Initial - Customize the skeleton
 
-On the now 🩻 skeleton device you can customize settings you want on all devices in the domain / fleet.
+On the now 🩻 skeleton device you can customize ⚙️ settings you want on all devices in the domain / fleet.
 
-Run `createSkeletonSettingsDiff.sh` - this script diffs your settings into `skeleton/settings` and removes some settings that i noticed will change during setup (screen brightness, charging time, etc.)
+Run `createSkeletonSettingsDiff.sh` - this script diffs your settings into `skeleton/settings[namespace]` and removes some settings that i noticed will change during setup (screen brightness, charging time, etc.)
 
 These scripts take no arguments, so make sure it's the only device attached.
 
-⌨️ It will ask if you want the input method captured too and save this to `skeleton/com.android.inputmethod.latin_preferences.xml` for a later task to pick up. Note this is a user-profile setting.
+⌨️ It will ask if you want the input method captured too and save this to `skeleton/com.android.inputmethod.latin_preferences.xml` for a later task to pick up. Note this is technically a user-profile setting.
 
-🔕 Note on ringtones: Ringtones are hard to autoprovision right, so they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/sdcard/Ringtones and not force one onto the user.
+🔕 Note on ringtones: Ringtones are hard to autoprovision right due to the Media-ID, rn they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/sdcard/Ringtones and not force one onto the user.
 
 # 👨‍🏭 $\color{blue}{\text{Machine}}$ : for a specific device
 
 With the skeleton ready for the domain, provision the devices one by one.
 
-We only setup 1 device at a time so make sure its the only one connected via adb. This way you don't need serials here as you will not know these beforehand. After that the device is reachable via hostname anyway and wont need to be connected via wire. You can also keep spare devices in the domain this way and set them up for a user in no-time.
+We only setup 1 device at a time so make sure its the only one connected via adb. This way you don't need serials here as you will not know these beforehand. After that the device is reachable via hostname adb wireless and ssh anyway and wont need to be connected via wire. You can also keep spare devices in the domain this way and set them up for a user in no-time.
 
 ## 🚢 1 -> N Morph - Domain-provision the device
 
 Take another fresh device. Only ADB, Magisk and ADB root needed.
 
-Just flash Magisk after lineage as zip, run it once, check its not complaining and allow adb shell su-rights. initial Apps will be installed during the setup.
+Just flash Magisk after lineage as zip, run it once, check its not complaining and allow adb shell su-rights.
+
+If you accidentially disallowed Shell su access you can remove the greyed out Shell in Magisk under "🛡️ Superuser"
 
 - Run `domainProvision.sh devicename.domain.tld`
 
 Here's what this script will do in complete order
 
-1. Installs the initial Apps first. If you forgot or dont want to install Magisk via Zip acknowledge to the script that the device is rooted.
+1. Installs the initial Apps first. If you forgot or dont want to install Magisk via Zip acknowledge to the script that the device is rooted. Magisk may expect you to reboot - do so now, you can just let the script wait.
 2. Applies all skeleton/settings via `adb shell settings set`
 3. Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
 
 4. Runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
-    1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says
-    2. `010-copyInternalStorageContent` - copies skeleton/sdcard to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
+    1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says, allows Port 5555 adb wireless. Don't worry, will still expect adb keys.
+    2. `010-copyInternalStorageContent` - copies all files in `skeleton/sdcard` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
     3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ED25519 CAs in your domain using opnsense or openwrt and a certs.webserver
 
-    4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`
-    5. `201-openvpnDeviceCerts` - if found in openvpnKeys/ copies the device fqdn cert from f.e. `openvpnKeys/$devicename.domain.tld.crt/key` to `/sdcard/openvpn/device.crt/key` - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
+    4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`. You find a generic profile.ovpn with comments on how to do it there.
+    5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnKeys/private/$devicename.domain.tld.key` and `openvpnKeys/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
+
     6. `300-termuxBasicSetup` - Installs the normal repository (deb https://packages.termux.dev is in Germany, Falkenstein) and some basic packages (see script), enables external storage setup and then copies the content of `skeleton/termux` into the termux home directory. If you install Termux:Boot the default contents of .termux/boot make sure sshd is started.
     7. `500-skeletonApps` - Installs all apps in skeleton/apps. See the caption about manually backing up and restoring single apps. This can be used to set the default input keyboard f.e.
 
