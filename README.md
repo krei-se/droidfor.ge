@@ -4,15 +4,15 @@ Auto provisioning and Backup/Restore solution for android fleet devices.
 
 Built for Phones with unlockable bootloaders, thus rootable lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
-- <font color="red">Domain</font>: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
+- $\color{red}{\textbf{Domain}}$: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
 
-- <font color="blue">Machine</font>: The 👨‍🏭 Admin then integrates each device into the Managed Domain.
+- $\color{blue}{\textbf{Machine}}$: The 👨‍🏭 Admin then integrates each device into the Managed Domain.
 
-- <font color="green">User</font>: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
+- $\color{green}{\textbf{User}}$: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
 
 Turns your android phones into rooted, but secure and usuable domain clients. No Clouds!
 
-# 👨‍🏭 <font color="red">Domain</font> : for all devices
+# 👨‍🏭 $\color{red}{\textbf{Domain}}$ : for all devices
 
 ## 🍨 0 -> N Initial Preseeding
 
@@ -46,7 +46,7 @@ These scripts take no arguments, so make sure it's the only device attached.
 
 🔕 Note on ringtones: Ringtones are hard to autoprovision right, so they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/sdcard/Ringtones and not force one onto the user.
 
-# 👨‍🏭 <font color="blue">Machine</font> : for a specific device
+# 👨‍🏭 $\color{blue}{\textbf{Machine}}$ : for a specific device
 
 With the skeleton ready for the domain, provision the devices one by one.
 
@@ -83,7 +83,7 @@ Here's what this script will do in complete order
 
 The device is now ready to hand over to the user for further initial Setup and restore.
 
-# 👶 <font color="green">User</font> - for a speficic device -> user
+# 👶 $\color{green}{\textbf{User}}$ : for a speficic device -> user
 
 Your user should have a working adb .android folder and keys in .ssh.
 
