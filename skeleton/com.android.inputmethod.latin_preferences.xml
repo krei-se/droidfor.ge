@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="pref_enable_emoji_alt_physical_key" value="true" />
+    <boolean name="pref_show_setup_wizard_icon" value="true" />
+    <boolean name="pref_key_use_personalized_dicts" value="false" />
+    <boolean name="next_word_prediction" value="false" />
+    <boolean name="pref_space_trackpad" value="true" />
+    <boolean name="pref_key_block_potentially_offensive" value="false" />
+    <boolean name="pref_key_use_contacts_dict" value="false" />
+    <boolean name="auto_cap" value="false" />
+    <string name="pref_key_preview_popup_dismiss_delay">70</string>
+    <int name="last_shown_emoji_category_id" value="8" />
+    <boolean name="popup_on" value="true" />
+    <boolean name="pref_voice_input_key" value="false" />
+    <boolean name="pref_key_auto_correction" value="false" />
+    <boolean name="pref_show_emoji_key" value="true" />
+    <string name="emoji_recent_keys"></string>
+    <boolean name="sound_on" value="false" />
+    <boolean name="vibrate_on" value="false" />
+    <string name="pref_keyboard_theme_20140509">4</string>
+    <boolean name="show_suggestions" value="false" />
+    <boolean name="pref_show_number_row" value="false" />
+    <boolean name="pref_key_use_double_space_period" value="false" />
+    <boolean name="pref_show_longpress_hints" value="true" />
+    <boolean name="pref_split_keyboard" value="false" />
+</map>
