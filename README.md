@@ -2,9 +2,12 @@
 
 ### Bend your Androids juuust right
 
+- This is still in active development
+- Visit <a href="https://krei.se">Krei.se</a> for updates and how to build a free managed domain (german)
+
 ### Auto provisioning and Backup/Restore solution for android fleet devices.
 
-Built for Phones with unlockable bootloaders, thus rootable lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
+Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
 - $\color{red}{\textbf{Domain}}$: An 👨‍🏭 Admin sets up a 🩻 skeleton settings template via a 🥼 Vanilla Device for the Managed Domain.
 

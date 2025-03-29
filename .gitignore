@@ -1,8 +1,8 @@
 initialApps/**
 !initialApps/.gitkeep
-openvpnKeys/**
-!openvpnKeys/.gitkeep
+openvpnPKI/**
+!openvpnPKI/.gitkeep
 skeleton/vanilla/*
-skeleton/sdcard/*
+skeleton/internalStorage/*
 !skeleton/vanilla/.gitkeep
-!skeleton/sdcard/.gitkeep
+!skeleton/internalStorage/.gitkeep
