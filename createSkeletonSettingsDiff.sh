@@ -97,21 +97,3 @@ read -p "Do you want to grab the AOSP Keyboard settings (user profile data)? (y/
     esac
 
 echo "Continuing!"
-
-
-read -p "Do you want to grab the Lineage Navbar settings (user profile data)? (y/n): " choice
-    case "$choice" in
-        y|Y )
-            echo "saving com.android.inputmethod.latin_preferences.xml to skeleton/com.android.inputmethod.latin_preferences.xml"
-            adb pull /data/user_de/0/com.android.inputmethod.latin/shared_prefs/com.android.inputmethod.latin_preferences.xml skeleton/com.android.inputmethod.latin_preferences.xml
-            ;;
-        n|N )
-            echo "Not saving the inputmethod xml."
-            ;;
-        * )
-            echo "Invalid input."
-            ;;
-    esac
-
-echo "Continuing!"
-

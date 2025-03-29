@@ -67,8 +67,17 @@ fi
 
 # write a symlink from /data/data/com.termux/files/home/externalsd to $EXTERNALSDPATH
 if [ -n "$EXTERNALSDUUID" ]; then
-    echo "External SD found at storage/$EXTERNALSDUUID, symlinking from /data/data/com.termux/files/home/externalsd ..."
-    adb shell "ln -sf /storage/$EXTERNALSDUUID /data/data/com.termux/files/home/externalsd"
+    echo "External SD found at /storage/$EXTERNALSDUUID, symlinking from /data/data/com.termux/files/home/externalsd ..."
+    
+    package="com.termux"
+    user_id=$(getUserIdFromPackageName "$package")
+    
+    adb shell "su $user_id -c 'ln -sf /storage/$EXTERNALSDUUID /data/data/com.termux/files/home/externalsd'"
+    # almost had me again lol, this will not catch symlinks!
+    # adb shell "restorecon -R /data/data/com.termux/files/home/"
+    # this works!
+    adb shell "restorecon -v /data/data/com.termux/files/home/externalsd"
+    
 
     # not needed, will always be root
     # fix permissions to termux' user
