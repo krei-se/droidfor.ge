@@ -39,7 +39,7 @@ You can find the settings-dump in `skeleton/vanilla`.
 
 Use the same device now as the 🩻 skeleton device
 
-## 🩻 0 -> 1 Initial - Customize the skeleton
+## 🩻 0 -> 1 Initial customization of the skeleton
 
 On the now 🩻 skeleton device you can customize ⚙️ settings you want on all devices in the domain / fleet.
 
@@ -50,6 +50,8 @@ These scripts take no arguments, so make sure it's the only device attached.
 ⌨️ It will ask if you want the input method captured too and save this to `skeleton/com.android.inputmethod.latin_preferences.xml` for a later task to pick up. Note this is technically a user-profile setting.
 
 ### Notes on stuff i will solve later when needed
+
+Skeleton App Backup/Restore - preferences for apps used on all domain / fleet devices are not implemented yet, rn i never need this because all apps get setup during domainProvisioning and userProvisioning.
 
 🔕 Note on ringtones: Ringtones are hard to autoprovision correctly due to the Media-ID, rn they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/InternalStorage/Ringtones and not force one onto the user. If you f*ck up the Media-ID it will play the wrong file, endlessly, until you restart the device lol.
 
@@ -100,7 +102,9 @@ The device is now ready to hand over to the user for further initial Setup and r
 
 # 👶 $\color{green}{\textbf{User}}$ : for a specific device -> user
 
-The user needs an ed25519-key in .ssh. You don't need to have working adb keys, but ofc can just connect to the device and allow the users adb keys.
+The user needs an ed25519-key in .ssh. You can create another `id_ed25519_android` called key which also gets added and allows for a second key which is only used for the android device and can thus be nopass (great for autosync)
+
+You don't need to have working adb keys, but ofc can just connect to the device and allow the users adb keys.
 
 ## 🧺 1 -> 1 Morph - User-provision the device
 
@@ -108,14 +112,15 @@ Run `userProvision.sh devicename.domain.tld user@domain.tld (0)`
 
 This links the device to the user 0 on the device (Owner). 👥 You can omit the multiuser-id, it will be 0 as default.
 
-🌳 LDAP-Support: You can run this as the domainadmin if you have ldapconfig.ini set up to lookup UID, GID and HOME of the user. The script will set permissions correctly, so its safe to do this as the Domain-Admin without the user present. All local backups and config go to $LDAPHOME/.android/devices/$deviceName or simply ~/.android/devices/$devicename.
+🌳 LDAP-Support: You can run this as the domainadmin if you have ldapconfig.ini set up to lookup UID, GID and HOME of the user. The script will set permissions correctly in the users home, so its safe to do this as the Domain-Admin without the user present. All local backups and config go to $LDAPHOME/.android/devices/$deviceName or simply ~/.android/devices/$devicename.
 
 The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
 1. `010-installInputmethodPreferences.sh` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
-2. `100-setupExternalStorage.sh` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and saves it into the users device config so all backup scripts locally can know the path for backups / syncing of public shares. Do not sync userdata to the externalsd without 🐆 LUKS!
-3. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
-4. `400-davx5` - sets all permissions already and stops nagging the user for donations until 2100-01-01
+2. `100-setupExternalStorage.sh` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and symlinks it to `/data/data/com.termux/files/home/externalsd` - all backup scripts can use this path for backups / syncing of public shares without having to know the UUID in /storage. Do not sync userdata to the externalsd without 🐆 LUKS!
+3. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` and `.ssh/id_ed25519_android.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
+4. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
+4. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip the password and add the account without one if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
 
 
 
@@ -141,6 +146,13 @@ If you want the users SD-Card to be found in a fixed path you can use exfatlabel
 This will set the drives label NAME to "512GB-SD" and the UUID to 1234-0512. I recommend using the uid of the user the device will be provisioned to as the first part and the GB-size as the second.
 
 You can then access the external-sd in a reproducible manner, like `/storage/1234-0512` on the phone. Also domainTask `340-termuxSetupExternalSDPath` will pick this up and use it for the symlink "externalsd" in termux' users home.
+
+## Radicale CalDAV / CardDAV Auto-discovery
+
+Radicale offers the .wellknown path already, just add this to your nameserver:
+
+    _caldavs._tcp.domain.tld.	3600	IN	SRV	10 100 5232 dav.domain.tld.
+    _carddavs._tcp.domain.tld.	3600	IN	SRV	10 100 5232 dav.domain.tld.
 
 ## Security Addons:
 
