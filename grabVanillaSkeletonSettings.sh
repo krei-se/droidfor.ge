@@ -1,12 +1,12 @@
 #!/bin/bash
 
-./checkAdbDeviceConnection.sh
+functions/checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "🥼 Vanilla device not connected! Exiting..."
     exit 1
 fi
 
-./checkAdbHasRoot.sh
+functions/checkAdbHasRoot.sh
 if [ $? -ne 0 ]; then
     echo "🥼 Vanilla device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1

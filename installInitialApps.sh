@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-./checkAdbDeviceConnection.sh
+functions/checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "Android device not connected! Exiting..."
     exit 1

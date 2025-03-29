@@ -1,12 +1,12 @@
 #!/bin/bash
 
-./checkUserHasAdbAndRsyncLocally.sh
+functions/checkUserHasAdbAndRsyncLocally.sh
 if [ $? -ne 0 ]; then
     echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
     exit 1
 fi
 
-./checkAdbDeviceConnection.sh
+functions/checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device not connected! Exiting..."
     exit 1
@@ -14,16 +14,19 @@ fi
 
 
 if [[ -z "$1" || -z "$2" ]]; then
-    echo "Usage: $0 <devicename.domain.tld> <user@domain.tld> <userhome-folder=~>"
+    echo "Usage: $0 <devicename.domain.tld> <user@domain.tld> <multiuserid=0>"
     exit 1
 fi
 
 DEVICENAMEFQDN=$1
 USERACCOUNT=$2
-USERHOME=$3
+MULTIUSERID=$3
+
+if [[ -z "$3" ]]; then
+    MULTIUSERID=0
+fi
 
 USERNAME=$(echo "$USERACCOUNT" | cut -d'@' -f1)
-
 
 # Check if DEVICENAMEFQDN has at least two dots (indicating a valid FQDN)
 DOT_COUNT=$(echo "$DEVICENAMEFQDN" | awk -F'.' '{print NF-1}')
@@ -45,6 +48,13 @@ DOMAIN=$(echo "$DEVICENAMEFQDN" | cut -d'.' -f2-)
 DROIDFORGEAUTOPROVISIONDOMAIN=$DOMAIN
 export DROIDFORGEAUTOPROVISIONDOMAIN
 
+DROIDFORGEAUTOPROVISIONUSERACCOUNT=$USERACCOUNT
+export DROIDFORGEAUTOPROVISIONUSERACCOUNT
+
+DROIDFORGEAUTOPROVISIONMULTIUSERID=$MULTIUSERID
+export DROIDFORGEAUTOPROVISIONMULTIUSERID
+
+
 echo -e "Device name to be userProvisioned is \033[0;34m$DEVICENAMEFQDN\033[0m - derived Host \033[0;34m$DEVICENAME\033[0m in Domain \033[0;31m$DOMAIN\033[0m"
 
 echo -e "User Account to be setup is \033[0;32m$USERACCOUNT\033[0m - derived Name \033[0;32m$USERNAME\033[0m"
@@ -64,15 +74,34 @@ read -p "Are these settings correct? (y/n): " choice
             ;;
     esac
 
-
-
 echo -e "Checking if the device is rooted ... \n"
 
-./checkAdbHasRoot.sh
+functions/checkAdbHasRoot.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1
 fi
+
+# Try to lookup the user via LDAP or use ~ as USERHOME
+
+eval "$(functions/ldapLookup.sh $USERACCOUNT)"
+
+echo "LDAP User UID: $LDAPUID"
+echo "LDAP User GID: $LDAPGID"
+echo "LDAP Primary Group: $LDAPGROUP_NAME"
+echo "LDAP User UID: $LDAPHOME"
+
+if [ -n "$LDAPHOME" ]; then
+    USERHOME=$LDAPHOME
+else
+    USERHOME=~
+fi
+
+DROIDFORGEAUTOPROVISIONUSERHOME=$USERHOME
+export DROIDFORGEAUTOPROVISIONUSERHOME
+
+# create device folder in $USERHOME
+mkdir -p $USERHOME/.android/devices/$DEVICENAMEFQDN
 
 
 TASKS_DIR="skeleton/userTasksScripts"
@@ -84,3 +113,11 @@ for script in $(ls "$TASKS_DIR"/*.sh | sort); do
 done
 
 echo "All tasks completed!"
+
+# fix permissions of $LDAPHOME/.android/devices/$DEVICENAMEFQDN
+if [[ -n "$LDAPHOME" && -n "$LDAPUID" && -n "$LDAPGROUPNAME" ]]; then
+
+    echo "setting permissions";
+    chown -R $LDAPUID:$LDAPGROUP_NAME $LDAPHOME/.android/devices/$DEVICENAMEFQDN
+
+fi

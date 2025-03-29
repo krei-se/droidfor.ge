@@ -2,19 +2,19 @@
 
 # Please remember these will get called with working directory droidfor.ge/ not skeleton/taskScripts
 
-./checkUserHasAdbAndRsyncLocally.sh
+functions/checkUserHasAdbAndRsyncLocally.sh
 if [ $? -ne 0 ]; then
     echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
     exit 1
 fi
 
-./checkAdbDeviceConnection.sh
+functions/checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device not connected! Exiting..."
     exit 1
 fi
 
-./checkAdbHasRoot.sh
+functions/checkAdbHasRoot.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1
@@ -44,8 +44,5 @@ if [ -z "$URL" ];
         adb push "/tmp/ca.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" /sdcard/openvpn/ca.crt
 fi
 
-adb shell "mkdir -p /data/data/de.blinkt.openvpn/files/autoprovision"
-adb shell "cp /sdcard/openvpn/* /data/data/de.blinkt.openvpn/files/autoprovision/"
-
-# clears the cache
+# clears openvpn data
 adb shell pm clear de.blinkt.openvpn

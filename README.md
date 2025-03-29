@@ -1,6 +1,6 @@
-# 🤖 droidfor.ge
+# 🤖 Droidfor.ge 🩻
 
-### Bending Androids juuuuust right
+### Bend your Androids juuust right
 
 ### Auto provisioning and Backup/Restore solution for android fleet devices.
 
@@ -50,7 +50,7 @@ These scripts take no arguments, so make sure it's the only device attached.
 
 🔕 Note on ringtones: Ringtones are hard to autoprovision correctly due to the Media-ID, rn they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/InternalStorage/Ringtones and not force one onto the user. If you f*ck up the Media-ID it will play the wrong file, endlessly, until you restart the device lol.
 
-👥 Note on multiuser-support: Even though technically possible - compatible devices are ~100€ - this is all user 0 / Owner specific. The settingsSecure file and running termux-commands f.e. can use userid 0 or 10 for a second user.
+👥 Note on multiuser-support: All userprovisioning allows to specify the multiuser-id. Create a second user on the device if you want (family-tablet, whatever), but i never use this, so even though basic stuff will copy and work just fine, don't expect all too much at this early stage. The default Owner is 0, second user is 10, etc.
 
 # 👨‍🏭 $\color{blue}{\text{Machine}}$ : for a specific device
 
@@ -70,70 +70,57 @@ If you accidentially disallowed Shell su access you can remove the greyed out Sh
 
 Here's what this script will do in complete order
 
-1. Installs the initial Apps first. If you forgot or dont want to install Magisk via Zip acknowledge to the script that the device is rooted. Magisk may expect you to reboot - do so now, you can just let the script wait.
-2. Applies all skeleton/settings via `adb shell settings set`
-3. Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
+- Installs the initial Apps first. If you forgot or dont want to install Magisk via Zip acknowledge to the script that the device is rooted. Magisk may expect you to reboot - do so now, you can just let the script wait.
+- Applies all skeleton/settings via `adb shell settings set`
+- Set device_name and bluetooth_name to the first part of the FQDN (devicename.domain.tld -> devicename)
 
-4. Runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
-    1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says, allows Port 5555 adb wireless. Don't worry, will still expect adb keys.
-    2. `010-copyInternalStorageContent` - copies all files in `skeleton/internalStorage` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
-    3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ED25519 CAs in your domain using opnsense or openwrt and a certs.webserver
+Then it runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
+    
+1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says, allows Port 5555 adb wireless. Don't worry, will still expect adb keys.
+2. `010-copyInternalStorageContent` - copies all files in `skeleton/internalStorage` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
+3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ED25519 CAs in your domain using opnsense or openwrt and a certs.webserver
 
-    4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`. You find a generic profile.ovpn with comments on how to do it there.
-    5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnPKI/private/$devicename.domain.tld.key` and `openvpnPKI/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
+4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`. You find a generic profile.ovpn with comments on how to do it there.
+5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnPKI/private/$devicename.domain.tld.key` and `openvpnPKI/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
 
-    6. `300-termuxBasicSetup` - Installs the normal repository (deb https://packages.termux.dev is in Germany, Falkenstein) and some basic packages (see script), enables external storage setup and then copies the content of `skeleton/termux` into the termux home directory. If you install Termux:Boot the default contents of .termux/boot make sure sshd is started.
-    7. `500-skeletonApps` - Installs all apps in skeleton/apps. See the caption about manually backing up and restoring single apps. This can be used to set the default input keyboard f.e.
+6. `300-termuxBasicSetup` - Installs the normal repository (deb https://packages.termux.dev is in Germany, Falkenstein) and some basic packages (see script)
+7. `310-termuxSkeleton` - copies the content of `skeleton/termux` into the termux home directory.
+8. `320-termuxDomainSetup` - if found in skeleton/termux, runs domainSetup.sh on the device via termux. This installs some packages, so take a look!
+9. `330-termuxBootSSHD` - makes sure sshd is running after a restart, starts it manually for domainProvisioning and checks if the port is open.
+10. `340-termuxSetupExternalSDPath` - adds a symlink "externalsd" in the termux' home to the external sd. Note that this will adb root create a symlink to the UUID that you can only remove or change as root, so make sure the externalsd path is kinda fixed (see "Useful Stuff")
+
+7. `500-skeletonApps` - Installs all apps in skeleton/apps. See the caption about manually backing up and restoring single apps. This can be used to set the default input keyboard f.e.
 
 
-- Run `userProvision.sh user@domain.tld`
-
-5. Runs all user-tasks-script in skeleton/userTasksScripts. See the folder for details, just remember these tasks 
 
 The device is now ready to hand over to the user for further initial Setup and restore.
 
 # 👶 $\color{green}{\textbf{User}}$ : for a specific device -> user
 
-Your user should have a working adb .android folder and keys in .ssh.
-
-We save all backups and config in .android/$deviceName. The backup script will loop all folders and take the one with "droidforge" empty file in it. This folder gets set up during userProvision.sh
+The user needs an ed25519-key in .ssh. You don't need to have working adb keys, but ofc can just connect to the device and allow the users adb keys.
 
 ## 🧺 1 -> 1 Morph - User-provision the device
 
-Connect the 🏗️ adminProvisioned device in the usersession via wire. If your user is not present but you have an nfs-server with his home folder do this remotely. I'm sure there is a way to add the adb keys somewhat easier and may make this easier in the future. Right now that's the way it goes.
+Run `userProvision.sh devicename.domain.tld user@domain.tld (0)`
 
-As the user, run `userProvision.sh devicename.domain.tld user@domain.tld`
+This links the device to the user 0 on the device (Owner). 👥 You can omit the multiuser-id, it will be 0 as default.
 
-Here's what this script will do in complete order
+🌳 LDAP-Support: You can run this as the domainadmin if you have ldapconfig.ini set up to lookup UID, GID and HOME of the user. The script will set permissions correctly, so its safe to do this as the Domain-Admin without the user present. All local backups and config go to $LDAPHOME/.android/devices/$deviceName or simply ~/.android/devices/$devicename.
 
-1. Adds the users public ssh keys into `/data/data/com.termux/files/home/.ssh/authorized_keys`
+The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
-
-## copy the users .ssh keys to termux for rsync to work.
-
-## 🎒 1 -> N Copy the skeleton to .android/$deviceName (Admin)
-
-Now copy your skeleton folder for a device not provisioned yet to $HOME./android/$devicename. All settings you change will be updated only once during autoprovisioning of the device.
-
-Your devicename can contain dots for a FQDN like yourdevicename.domain.tld
+1. `010-installInputmethodPreferences.sh` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
+2. `100-setupExternalStorage.sh` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and saves it into the users device config so all backup scripts locally can know the path for backups / syncing of public shares. Do not sync userdata to the externalsd without 🐆 LUKS!
+3. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
 
 
 
-# Autoprovisioning a device for first use (User)
 
-Run ./autoprovision.sh $devicename $serial with an adb enabled wired device. It can be the only device attached or you have to provide the serial once.
+You're done! Enjoy your usable device!
 
-This will do the following changes on your Phone in standard, you can change the script ofc:
+# Useful stuff
 
-- Set up the devicename
-- Install all initial apps like Termux, Termux: Boot and Magisk Root
-- Set adb wireless port fixed to 5555, survives reboots. There is an fixedAdbWireless.sh in your termux home folder too.
-- Set up sshd autoboot for the termux user. Place your .ssh keys in $devicename/ssh before provisioning to autocopy them onto the device
-- Install the following termux-packages: openssh, rsync, mc, termux-am, cryptsetup
-
-- Run the termux-setup for storage access. This needs root, so make sure magisk is working. You can rerun the autoprovisioning any time needed.
-
-# Static path for SD-Cards
+## 💾 Static path for SD-Cards
 
 If you want the users SD-Card to be found in a fixed path you can use exfatlabel from exfatprogs to format the card with a fixed UUID like this:
 
@@ -150,48 +137,14 @@ If you want the users SD-Card to be found in a fixed path you can use exfatlabel
     
 This will set the drives label NAME to "512GB-SD" and the UUID to 1234-0512. I recommend using the uid of the user the device will be provisioned to as the first part and the GB-size as the second.
 
-You can then access the external-sd in a reproducible manner, like `/storage/1234-0512` on the phone. exfatprogs is also available for android in termux if you want to do it there, you can even set this up as a script, take the 300-termux-setup as a template on how to automatically do termux commands via adb.
+You can then access the external-sd in a reproducible manner, like `/storage/1234-0512` on the phone. Also domainTask `340-termuxSetupExternalSDPath` will pick this up and use it for the symlink "externalsd" in termux' users home.
 
-## App Files
-
-I only provide profiles in skeleton for the following apps:
-
-- OpenVPN for Android: https://f-droid.org/de/packages/de.blinkt.openvpn/
-    + Copy to $devicename/openvpn - these will be copied to the internal storage /sdcard/vpn, take a look at skeleton/vpn
-
-This will not install any profile in the OpenVPN-App, you have to select the certs and profile there once
-
-- DAVx5
-    + Copy to $devicename/dav your profiles, you can find all settings in the skeleton/dav folder
-
-There is no autosetup for FairMail yet as you might use another E-Mail app.
-
-# Croned Backup
-
-This program won't sync any data, but you have sshd in termux for that!
-
-This program only uses adb wireless when the device is in range to backup your apps and appdata. Specify the packagenames you want backupped in $device/apps
-
-Run ./backup.sh $devicename in a cron. Your device should be reachable via devicename as hostname with no domain added and listen on ADB wireless port 5555.
-
-There is no authentification outside the adb keys!!
-
-# What this program won't do
-
-- Save Call History or complex app profiles like packages.xml
-- Save Wallpapers or other settings
-
-Never save critical data outside /sdcard / /storage/emulated/0 - files in /storage/external on your SD-Card are not encrypted and can be read by an attacker. Only use LUKS-Containers on the sdcard!!
-
-
-
-
-### Security Addons:
+## Security Addons:
 
 - I provide setups for termux to use a LUKS-encrypted container on the SD card. This way you can lose the phone safely without an attacker knowing who it belongs to. You revoke the openvpn-keys, remote erase if you still can and sleep well.
 
-- There is also the possibility to simply mount the users NFS-kerberized home onto the device. This is recommended for all personal files as they will not be stored on the device in any way.
+- There is also the possibility to simply mount the users NFS-kerberized home onto the device. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
 
-### Comfort Addons:
+## Comfort Addons (i will do later lol):
 
 - Script to inotify-watch the DCIM folder and sync all photos to the users home. This expects a homes. host but you can easily modify the script.
