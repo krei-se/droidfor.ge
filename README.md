@@ -115,7 +115,7 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 1. `010-installInputmethodPreferences.sh` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
 2. `100-setupExternalStorage.sh` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and saves it into the users device config so all backup scripts locally can know the path for backups / syncing of public shares. Do not sync userdata to the externalsd without 🐆 LUKS!
 3. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
-
+4. `400-davx5` - sets all permissions already and stops nagging the user for donations until 2100-01-01
 
 
 
