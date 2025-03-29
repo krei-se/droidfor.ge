@@ -2,19 +2,19 @@
 
 # Please remember these will get called with working directory droidfor.ge/ not skeleton/taskScripts
 
-./checkUserHasAdbAndRsyncLocally.sh
+functions/checkUserHasAdbAndRsyncLocally.sh
 if [ $? -ne 0 ]; then
     echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
     exit 1
 fi
 
-./checkAdbDeviceConnection.sh
+functions/checkAdbDeviceConnection.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device not connected! Exiting..."
     exit 1
 fi
 
-./checkAdbHasRoot.sh
+functions/checkAdbHasRoot.sh
 if [ $? -ne 0 ]; then
     echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1
@@ -29,11 +29,18 @@ source ./functions/getUserIdFromPackageName.sh
     adb shell pm clear com.termux.boot
 
 # Allow notifications, if you want to see all permissions,
-    #run adb shell pm list permissions -g com.termux OR
-    #run adb shell dumpsys package com.termux | grep permission
+    # just diff this before and after applying the new permissions:
+
+    # adb shell dumpsys package com.termux | grep "requested permissions:" -A 100
 
 
+    #run adb shell pm list permissions -g com.termux
+
+    
+    #run adb shell pm list permissions -d | grep com.termux
+    
     adb shell pm grant com.termux android.permission.POST_NOTIFICATIONS
+
 
 # Monkey start the app
     adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1
@@ -93,3 +100,5 @@ sleep 5
         fi
         sleep 1  # Check every second
     done
+
+    adb shell input keyevent 3
