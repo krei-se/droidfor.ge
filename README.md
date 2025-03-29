@@ -46,7 +46,11 @@ These scripts take no arguments, so make sure it's the only device attached.
 
 ⌨️ It will ask if you want the input method captured too and save this to `skeleton/com.android.inputmethod.latin_preferences.xml` for a later task to pick up. Note this is technically a user-profile setting.
 
-🔕 Note on ringtones: Ringtones are hard to autoprovision right due to the Media-ID, rn they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/sdcard/Ringtones and not force one onto the user.
+### Notes on stuff i will solve later when needed
+
+🔕 Note on ringtones: Ringtones are hard to autoprovision correctly due to the Media-ID, rn they are wiped from the skeleton settings. Implement a task if you need this, i recommend only offering a ringtone via skeleton/InternalStorage/Ringtones and not force one onto the user. If you f*ck up the Media-ID it will play the wrong file, endlessly, until you restart the device lol.
+
+👥 Note on multiuser-support: Even though technically possible - compatible devices are ~100€ - this is all user 0 / Owner specific. The settingsSecure file and running termux-commands f.e. can use userid 0 or 10 for a second user.
 
 # 👨‍🏭 $\color{blue}{\text{Machine}}$ : for a specific device
 
@@ -72,11 +76,11 @@ Here's what this script will do in complete order
 
 4. Runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the folder for details, here are the default scripts and you can ofc already add some:
     1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says, allows Port 5555 adb wireless. Don't worry, will still expect adb keys.
-    2. `010-copyInternalStorageContent` - copies all files in `skeleton/sdcard` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
+    2. `010-copyInternalStorageContent` - copies all files in `skeleton/internalStorage` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
     3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ED25519 CAs in your domain using opnsense or openwrt and a certs.webserver
 
     4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`. You find a generic profile.ovpn with comments on how to do it there.
-    5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnKeys/private/$devicename.domain.tld.key` and `openvpnKeys/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
+    5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnPKI/private/$devicename.domain.tld.key` and `openvpnPKI/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
 
     6. `300-termuxBasicSetup` - Installs the normal repository (deb https://packages.termux.dev is in Germany, Falkenstein) and some basic packages (see script), enables external storage setup and then copies the content of `skeleton/termux` into the termux home directory. If you install Termux:Boot the default contents of .termux/boot make sure sshd is started.
     7. `500-skeletonApps` - Installs all apps in skeleton/apps. See the caption about manually backing up and restoring single apps. This can be used to set the default input keyboard f.e.
@@ -88,7 +92,7 @@ Here's what this script will do in complete order
 
 The device is now ready to hand over to the user for further initial Setup and restore.
 
-# 👶 $\color{green}{\textbf{User}}$ : for a speficic device -> user
+# 👶 $\color{green}{\textbf{User}}$ : for a specific device -> user
 
 Your user should have a working adb .android folder and keys in .ssh.
 

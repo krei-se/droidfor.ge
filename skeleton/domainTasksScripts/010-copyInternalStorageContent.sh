@@ -21,8 +21,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # pull the Archer Mulatto Butts Ringtone in any case
-mkdir -p skeleton/sdcard/Ringtones
-curl -L https://archive.org/download/tvtunes_26263/Archer%20-%20Mulatto%20Butts.ogg -o skeleton/sdcard/Ringtones/mulattobutts.ogg
+mkdir -p skeleton/internalStorage/Ringtones
+curl -L https://archive.org/download/tvtunes_26263/Archer%20-%20Mulatto%20Butts.ogg -o skeleton/internalStorage/Ringtones/mulattobutts.ogg
 
 # creates a remote rsync service on the adb enabled device, then forwards the port.
 adb push skeleton/adminTasksScripts/remoteRsync.conf /sdcard/remoteRsync.conf
@@ -32,7 +32,7 @@ adb shell "su -c 'rsync --daemon --config=/sdcard/remoteRsync.conf &'"
 adb shell "ps | grep rsync"
 
 # dont worry the /root here is the sdcard
-rsync -avz --no-times --no-group --exclude=".gitkeep" --progress --stats skeleton/sdcard/ rsync://localhost:2137/root/
+rsync -avz --no-times --no-group --exclude=".gitkeep" --progress --stats skeleton/internalStorage/ rsync://localhost:2137/root/
 
 adb shell "su -c 'killall rsync'"
 adb shell "rm /sdcard/remoteRsync.conf"

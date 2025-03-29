@@ -44,6 +44,8 @@ if [ -z "$URL" ];
         adb push "/tmp/ca.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" /sdcard/openvpn/ca.crt
 fi
 
+adb shell "mkdir -p /data/data/de.blinkt.openvpn/files/autoprovision"
+adb shell "cp /sdcard/openvpn/* /data/data/de.blinkt.openvpn/files/autoprovision/"
 
 # clears the cache
 adb shell pm clear de.blinkt.openvpn
