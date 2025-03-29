@@ -14,12 +14,14 @@ fi
 
 
 if [[ -z "$1" || -z "$2" ]]; then
-    echo "Usage: $0 <devicename.domain.tld> <user@domain.tld>"
+    echo "Usage: $0 <devicename.domain.tld> <user@domain.tld> <userhome-folder=~>"
     exit 1
 fi
 
 DEVICENAMEFQDN=$1
 USERACCOUNT=$2
+USERHOME=$3
+
 USERNAME=$(echo "$USERACCOUNT" | cut -d'@' -f1)
 
 
@@ -43,7 +45,7 @@ DOMAIN=$(echo "$DEVICENAMEFQDN" | cut -d'.' -f2-)
 DROIDFORGEAUTOPROVISIONDOMAIN=$DOMAIN
 export DROIDFORGEAUTOPROVISIONDOMAIN
 
-echo -e "Device name to be adminAutoProvisioned is \033[0;34m$DEVICENAMEFQDN\033[0m - derived Host \033[0;34m$DEVICENAME\033[0m in Domain \033[0;31m$DOMAIN\033[0m"
+echo -e "Device name to be userProvisioned is \033[0;34m$DEVICENAMEFQDN\033[0m - derived Host \033[0;34m$DEVICENAME\033[0m in Domain \033[0;31m$DOMAIN\033[0m"
 
 echo -e "User Account to be setup is \033[0;32m$USERACCOUNT\033[0m - derived Name \033[0;32m$USERNAME\033[0m"
 
@@ -62,11 +64,7 @@ read -p "Are these settings correct? (y/n): " choice
             ;;
     esac
 
-echo -e "Installing Initial Apps \n"
 
-./installInitialApps.sh
-
-read -n 1 -s -r -p "Make sure the device is rooted, then press any key to continue..."
 
 echo -e "Checking if the device is rooted ... \n"
 
@@ -77,35 +75,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-echo "Applying skeleton settings \n"
-
-apply_settings() {
-    local namespace=$1
-    local file=$2
-
-    while IFS='=' read -r key value; do
-        # Ignore empty lines or comments
-        [[ -z "$key" || "$key" =~ ^# ]] && continue
-
-        echo "Setting $namespace $key to $value..."
-        adb shell settings put "$namespace" "$key" "$value"
-    done < "$file"
-}
-
-# Apply settings from skeleton
-apply_settings global skeleton/settingsGlobal
-apply_settings secure skeleton/settingsSecure
-apply_settings system skeleton/settingsSystem
-
-
-# Apply device name
-echo "Setting global device_name to $DEVICENAME..."
-adb shell settings put global device_name "$DEVICENAME"
-
-echo "Setting secure bluetooth_name to $DEVICENAME..."
-adb shell settings put secure bluetooth_name "$DEVICENAME"
-
-TASKS_DIR="skeleton/adminTasksScripts"
+TASKS_DIR="skeleton/userTasksScripts"
 
 # Loop through each `.sh` script in numerical order
 for script in $(ls "$TASKS_DIR"/*.sh | sort); do

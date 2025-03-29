@@ -13,15 +13,17 @@ PACKAGES=("com.termux" "com.termux.boot" "com.topjohnwu.magisk")
 PACKAGES+=("de.blinkt.openvpn" "at.bitfire.davdroid" "at.techbee.jtx")
 
 # Stores
-#    PACKAGES+=("com.aurora.store" "org.fdroid.fdroid")
+    PACKAGES+=("com.aurora.store" "org.fdroid.fdroid")
 
 # Media
-#    PACKAGES+=("ch.blinkenlights.android.vanilla" "org.videolan.vlc:6")
+    PACKAGES+=("ch.blinkenlights.android.vanilla" "org.schabi.newpipe" "org.videolan.vlc:6" )
 
 # Social
-#    PACKAGES+=("org.quantumbadger.redreader" "nl.viter.glider")
+    PACKAGES+=("org.quantumbadger.redreader" "nl.viter.glider")
 
- 
+# "Smart" Home
+    PACKAGES+=("org.gateshipone.malp")
+
 
 fetch_fdroid_apk() {
     local PACKAGE_NAME="$1"
