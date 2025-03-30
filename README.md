@@ -125,7 +125,7 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 4. `100-setupExternalStorage` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and symlinks it to `/data/data/com.termux/files/home/externalsd` - all backup scripts can use this path for backups / syncing of public shares without having to know the UUID in /storage. Do not sync userdata to the externalsd without 🐆 LUKS!
 5. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` and `.ssh/id_ed25519_android.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
 6. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
-7. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip the password and add the account without one if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
+7. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip this if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
 
 You can manually run backup.sh in .android now or have a systemd timer do it. This will connect to all devices via ADB wireless and pull backups (apk + data without caches or no_backup).
 
