@@ -186,6 +186,7 @@ https://www.routerperformance.net/opnsense-repo/
 
 Install it and add local-data like:
 
+    server: 
     local-data: "_caldavs._tcp.domain.tld. 3600 IN SRV 10 100 5232 dav.domain.tld."
     local-data: "_carddavs._tcp.domain.tld. 3600 IN SRV 10 100 5232 dav.domain.tld."
 
