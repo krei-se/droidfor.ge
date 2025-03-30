@@ -192,6 +192,8 @@ Install it and add local-data like:
 
 This also allows the needed TXT-Records for ED25519-CA-Download
 
+<!--
+
 # Addons that i will do later but forget if not here
 
 ## Comfort Addons i do with a custom sync for now:
@@ -204,3 +206,4 @@ This also allows the needed TXT-Records for ED25519-CA-Download
 
 - There is also the possibility to mount the users NFS-kerberized home onto the device if you have fun compiling the kernel again. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
 
+-->
