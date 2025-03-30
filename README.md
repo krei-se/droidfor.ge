@@ -5,7 +5,7 @@
 - Visit <a href="https://krei.se">Krei.se</a> for updates and how to build a free managed domain (german)
 - <a href="https://krei.se/Blog/0ff-personaldevice/050-Mobiles">Buyers Guide for tested phones (german)</a> 
 
-### Auto provisioning and Backup/Restore solution for android fleet devices.
+### Auto provisioning, Syncing and Backup/Restore for android fleet devices.
 
 Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
@@ -18,6 +18,8 @@ Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage device
 Turns your android phones into rooted, but secure and usuable domain clients. No Clouds and no management apps!
 
 As a sideeffect i noticed after finishing this that not only you can lose or break a device now safely (good for the mind) - you can just keep one in every room, they are basically all the same now (good for the body).
+
+App Backup is still hit and miss, dont expect all that much, but if you use foss-friendly apps you wont run into issues much.
 
 # 👨‍🏭 $\color{red}{\textbf{Domain}}$ : for all devices
 
@@ -128,11 +130,15 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
 # Provided userspace-scripts in ~/.android
 
-Still work in progress. Data gets backupped but restoring wont work so far. Ill still have to work around vendors not really wanting us to backup data lol - use with caution
+Still work in progress. Data gets backupped but restoring works only for userfriendly apps. Ill still have to work around vendors not really wanting us to backup data lol - use with caution. You can use swiftbackup and just do a local backup, sync the 16char folder, but even those solutions did not get my ecovacs app correctly restored.
+
+If an app wont restore from user_de and /data/data you should assume the vendor does not like you and look for alternatives.
 
 - run `backup.sh` or have a systemd timer do it. This will connect to all devices via ADB wireless and pull backups (apk + data without caches or no_backup).
 
 - example `sync.sh` to show you how to sync via termux ssh and rsync to the internal storage or external sd. You have to provide the user_id termux is running as for ssh-login to work, you can look it up in termux with `id`
+
+This script actually works flawlessly and syncs at 50MB/sec over VPN or Wifi to my external SD cards.
 
 - If needed use `restore.sh` to restore a single app with `restore.sh device.domain.tld tld.package.name` You can just copy the apks and appData between the 3 last backups and devices if need arises or use this as a template to sync app data from one device to another
 
