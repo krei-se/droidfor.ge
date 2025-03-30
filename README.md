@@ -128,6 +128,8 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
 # Provided userspace-scripts in ~/.android
 
+Still work in progress. Data gets backupped but restoring wont work so far. Ill still have to work around vendors not really wanting us to backup data lol - use with caution
+
 - run `backup.sh` or have a systemd timer do it. This will connect to all devices via ADB wireless and pull backups (apk + data without caches or no_backup).
 
 - example `sync.sh` to show you how to sync via termux ssh and rsync to the internal storage or external sd. You have to provide the user_id termux is running as for ssh-login to work, you can look it up in termux with `id`

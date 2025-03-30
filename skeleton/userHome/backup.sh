@@ -18,6 +18,7 @@ for deviceFolder in ./devices/*/; do
 
     mkdir -p $deviceFolder/apks
     mkdir -p $deviceFolder/appData
+    mkdir -p $deviceFolder/appData_de
 
     echo "Applist for $device:"
 
@@ -59,6 +60,12 @@ for deviceFolder in ./devices/*/; do
                     continue
                 fi
 
+
+                # keep 3 backups per app
+                mkdir -p "$deviceFolder/appData_de/$app"
+                mkdir -p "$deviceFolder/appData_de/$app.oneday"
+                mkdir -p "$deviceFolder/appData_de/$app.twodays"
+
                 # keep 3 backups per app
                 mkdir -p "$deviceFolder/appData/$app"
                 mkdir -p "$deviceFolder/appData/$app.oneday"
@@ -66,6 +73,7 @@ for deviceFolder in ./devices/*/; do
 
                 # remove oldest backup.          remove files                               remove subfolders
                 rm -rf $deviceFolder/appData/$app.twodays/* $deviceFolder/appData/$app.twodays/.*
+                rm -rf $deviceFolder/appData_de/$app.twodays/* $deviceFolder/appData_de/$app.twodays/.*
 
                 # not really needed
                 #rmdir $deviceFolder/appData/$app.twodays/
@@ -74,7 +82,12 @@ for deviceFolder in ./devices/*/; do
                 mv $deviceFolder/appData/$app.oneday  $deviceFolder/appData/$app.twodays
                 mv $deviceFolder/appData/$app         $deviceFolder/appData/$app.oneday
 
+                mv $deviceFolder/appData_de/$app.oneday  $deviceFolder/appData_de/$app.twodays
+                mv $deviceFolder/appData_de/$app         $deviceFolder/appData_de/$app.oneday
+
                 mkdir -p $deviceFolder/appData/$app
+                mkdir -p $deviceFolder/appData_de/$app
+                
 
                 # cool hack to exclude caches
                 adb -s "$device:5555" shell "find /data/data/$app -type f ! -path '*cache*' ! -path '*no_backup*'" |
@@ -82,6 +95,10 @@ for deviceFolder in ./devices/*/; do
                 # Pull each file individually (avoiding cache subfolder)
                     adb -s "$device:5555" pull "$file" "$deviceFolder/appData/$app/$(basename $file)"
                 done
+
+                # Pull user_de
+                adb -s "$device:5555" pull /data/user_de/0/$app "$deviceFolder/appData_de/$app"
+                
                 #adb -s "$device:5555" pull "$apkPath/base.apk" "$deviceFolder/apks/$app.apk"
 
 

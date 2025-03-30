@@ -2,7 +2,8 @@
 
 getUserIdFromPackageName() {
     package_name=$1
-    uid=$(adb shell pm list packages -U | grep "$package_name " | awk -F'uid:' '{print $2}' | tr -d '[:space:]' | cut -d',' -f1)
+    device=$2
+    uid=$(adb -s $device:5555 shell pm list packages -U | grep "$package_name " | awk -F'uid:' '{print $2}' | tr -d '[:space:]' | cut -d',' -f1)
 
     if [[ -n "$uid" ]]; then
         # Extract the last three digits of the UID
@@ -60,12 +61,35 @@ if [ ! -d $backupFolder ]; then
 
 fi
 
+# Check if a backup-folder exists
+backupdeFolder=$deviceFolder/appData_de/$app
+
+if [ ! -d $backupdeFolder ]; then
+
+    echo "_de BackupData for $app not found. You find up to 3 backups there, just rename it to the Package-Name"
+    exit 1
+
+fi
+
 read -n 1 -s -r -p "There seems to be an APK and BackupData present, you sure you want to restore $app on $device ? Then press any key to continue..."
 
+adb -s "$device:5555" shell am force-stop "$app"
+adb -s "$device:5555" shell pm clear "$app"
+
 adb -s $device:5555 install "$apk"
-user_id=$(getUserIdFromPackageName "$app")
+user_id=$(getUserIdFromPackageName "$app" "$device")
+
 
 adb -s $device:5555 push $backupFolder/.  /data/data/$app/
 adb -s $device:5555 shell chown -R $user_id:$user_id /data/data/$app/
+adb -s $device:5555 shell restorecon -R /data/data/$app/
+
+
+adb -s $device:5555 push $backupdeFolder/.  /data/user_de/0/$app/
+adb -s $device:5555 shell chown -R $user_id:$user_id /data/user_de/0/$app
+adb -s $device:5555 shell restorecon -R /data/user_de/0/$app/
+
+# Restart the app
+adb -s "$device:5555" shell monkey -p "$app" -c android.intent.category.LAUNCHER 1
 
 echo "should be fine now!"
