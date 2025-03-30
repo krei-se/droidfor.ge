@@ -192,12 +192,15 @@ Install it and add local-data like:
 
 This also allows the needed TXT-Records for ED25519-CA-Download
 
-## Security Addons:
+# Addons that i will do later but forget if not here
 
-- I provide setups for termux to use a LUKS-encrypted container on the SD card. This way you can lose the phone safely without an attacker knowing who it belongs to. You revoke the openvpn-keys, remote erase if you still can and sleep well.
+## Comfort Addons i do with a custom sync for now:
 
-- There is also the possibility to simply mount the users NFS-kerberized home onto the device if you have fun compiling the kernel again. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
+- Script to inotify-watch the DCIM folder and sync all photos to the users home. This expects a homes. host but you can easily modify the script. This could be done now as i
 
-## Comfort Addons (i will do later lol):
+## Security Addons that will need a new kernel compiled on the devices:
 
-- Script to inotify-watch the DCIM folder and sync all photos to the users home. This expects a homes. host but you can easily modify the script.
+- Setups for termux to use a LUKS-encrypted container on the SD card. This way you can lose the phone safely without an attacker knowing who it belongs to. You revoke the openvpn-keys, remote erase if you still can and sleep well.
+
+- There is also the possibility to mount the users NFS-kerberized home onto the device if you have fun compiling the kernel again. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
+
