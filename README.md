@@ -172,6 +172,38 @@ This will set the drives label NAME to "512GB-SD" and the UUID to 1234-0512. I r
 
 You can then access the external-sd in a reproducible manner, like `/storage/1234-0512` on the phone. Also domainTask `340-termuxSetupExternalSDPath` will pick this up and use it for the symlink "externalsd" in termux' users home.
 
+## Autoprovision your own apps
+
+The workflow to add an app is usually the same, just `adb shell pm install` the apk
+
+### Permissions
+
+To not nag users with permissions, you can start the app and while it asks for permissions
+
+    adb shell dumpsys package tld.package.name | grep "requested permissions:" -A 100 > before
+
+allow the permission on the device
+
+    adb shell dumpsys package tld.package.name | grep "requested permissions:" -A 100 > after
+
+then just diff those with `diff before after`
+
+you can see all permissions granted and for the autoprovisioning add
+
+    adb shell pm grant com.termux namespace.permission.PERMISSION
+
+Some battery savings and autostart work differently. Whitelist apps to run while idling:
+
+    adb shell dumpsys deviceidle whitelist +com.termux
+
+This is a per-user setting, allows autostart:
+
+    adb shell settings put secure startup_whitelist at.bitfire.davdroid
+
+### overwriting stuff in /data/data/tld.package.name
+
+If you change / push settings.xml in /data/data/tld.package.name and the app crashes check if the u0_a123 uid is correct and run restorecon -R on the folder for SELinux-context to restore. There is a little helper script in /functions to give you the uid for a tld.package.name
+
 ## Radicale CalDAV / CardDAV Auto-discovery
 
 Radicale offers the .wellknown path already, "simply" add this to your nameserver:
