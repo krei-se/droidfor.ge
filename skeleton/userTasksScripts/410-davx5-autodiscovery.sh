@@ -29,7 +29,8 @@ SRV_RECORD=$(dig +short SRV "_caldavs._tcp.${DROIDFORGEAUTOPROVISIONDOMAIN}." | 
 # Check if SRV record was found
 if [ -z "$SRV_RECORD" ]; then
   echo "No SRV record found for _caldavs._tcp.${DROIDFORGEAUTOPROVISIONDOMAIN}."
-  exit 1
+  echo "Skipping autodiscovery for Davx5"
+  exit 0
 fi
 
 # Extract the port and hostname from the SRV record

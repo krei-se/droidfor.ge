@@ -53,5 +53,9 @@ adb shell "grep -q 'time_nextDonationPopup' /data/data/at.bitfire.davdroid/share
 # Sony mostly, but can not hurt lol
 adb shell settings put secure startup_whitelist at.bitfire.davdroid
 
+# Samsung. On lineage all powersaving is disabled already, just hide the hint
+adb shell "grep -q 'hint_AutostartPermissions' /data/data/at.bitfire.davdroid/shared_prefs/at.bitfire.davdroid_preferences.xml || sed -i '/<map>/a \ \ \ \ <boolean name=\"hint_AutostartPermissions\" value=\"false\" />' /data/data/at.bitfire.davdroid/shared_prefs/at.bitfire.davdroid_preferences.xml"
+
+
 adb shell monkey -p at.bitfire.davdroid -c android.intent.category.LAUNCHER 1
 

@@ -117,13 +117,15 @@ This links the device to the user 0 on the device (Owner). 👥 You can omit the
 
 The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
-1. `010-installInputmethodPreferences.sh` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
-2. `100-setupExternalStorage.sh` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and symlinks it to `/data/data/com.termux/files/home/externalsd` - all backup scripts can use this path for backups / syncing of public shares without having to know the UUID in /storage. Do not sync userdata to the externalsd without 🐆 LUKS!
-3. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` and `.ssh/id_ed25519_android.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
-4. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
-4. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip the password and add the account without one if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
+1. `001-userHomeAndroidSkeleton` - copies skeleton/userHome contents like backup.sh and restore.sh scripts to the users home/.android folder. The scripts provide basic backup and restore for the last 3 backups.
+2. `005-userHomeAndroidDeviceFolder` - creates the devicefolder under users home/.android/devices and copies the applist.example to applist (picked up by backup.sh)
+3. `010-installInputmethodPreferences` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
+4. `100-setupExternalStorage` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and symlinks it to `/data/data/com.termux/files/home/externalsd` - all backup scripts can use this path for backups / syncing of public shares without having to know the UUID in /storage. Do not sync userdata to the externalsd without 🐆 LUKS!
+5. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` and `.ssh/id_ed25519_android.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
+6. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
+7. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip the password and add the account without one if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
 
-
+You can manually run backup.sh in .android now or have a systemd timer do it. This will connect to all devices via ADB wireless and pull backups (apk + data without caches or no_backup).
 
 You're done! Enjoy your usable device!
 
@@ -150,16 +152,48 @@ You can then access the external-sd in a reproducible manner, like `/storage/123
 
 ## Radicale CalDAV / CardDAV Auto-discovery
 
-Radicale offers the .wellknown path already, just add this to your nameserver:
+Radicale offers the .wellknown path already, "simply" add this to your nameserver:
 
     _caldavs._tcp.domain.tld.	3600	IN	SRV	10 100 5232 dav.domain.tld.
     _carddavs._tcp.domain.tld.	3600	IN	SRV	10 100 5232 dav.domain.tld.
+
+Sadly nowadays all routers and firewall seem to discourage you doing this lol.
+
+In OpenWRT you can add custom records in /etc/dnsmasq.conf with srv-host (file is commented)
+
+    # Change the following lines if you want dnsmasq to serve SRV
+    # records.
+    # You may add multiple srv-host lines.
+    # The fields are <name>,<target>,<port>,<priority>,<weight>
+
+    # A SRV record sending LDAP for the example.com domain to
+    # ldapserver.example.com port 289
+    #srv-host=_ldap._tcp.example.com,ldapserver.example.com,389
+
+    # Two SRV records for LDAP, each with different priorities
+    #srv-host=_ldap._tcp.example.com,ldapserver.example.com,389,1
+    #srv-host=_ldap._tcp.example.com,ldapserver.example.com,389,2
+
+    # CalDAV/CardDAV
+    srv-host=_caldavs._tcp.domain.tld.,dav.domain.tld,5232,10,100
+    srv-host=_carddavs._tcp.domain.tld.,dav.domain.tld,5232,10,100
+
+In OpnSense if you use Unbound, there is a custom repository for a plugin called os-unboundcustom-maxit
+
+https://www.routerperformance.net/opnsense-repo/
+
+Install it and add local-data like:
+
+    local-data: "_caldavs._tcp.domain.tld. 3600 IN SRV 10 100 5232 dav.domain.tld."
+    local-data: "_carddavs._tcp.domain.tld. 3600 IN SRV 10 100 5232 dav.domain.tld."
+
+This also allows the needed TXT-Records for ED25519-CA-Download
 
 ## Security Addons:
 
 - I provide setups for termux to use a LUKS-encrypted container on the SD card. This way you can lose the phone safely without an attacker knowing who it belongs to. You revoke the openvpn-keys, remote erase if you still can and sleep well.
 
-- There is also the possibility to simply mount the users NFS-kerberized home onto the device. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
+- There is also the possibility to simply mount the users NFS-kerberized home onto the device if you have fun compiling the kernel again. This is recommended for all personal files so they will not be stored on the device in any way. There is no GSSAPI SSO support for now, sorry, you will have to login as the user.
 
 ## Comfort Addons (i will do later lol):
 
