@@ -16,7 +16,9 @@ Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage device
 
 - $\color{green}{\textbf{User}}$: All 👶 Users set up their fresh device once, backup is done transparent via the nfs home file server or manually in the userspace session.
 
-Turns your android phones into rooted, but secure and usuable domain clients. No Clouds!
+Turns your android phones into rooted, but secure and usuable domain clients. No Clouds and no management apps!
+
+As a sideeffect i noticed after finishing this that not only you can lose or break a device now safely (good for the mind) - you can just keep one in every room, they are basically all the same now (good for the body).
 
 # 👨‍🏭 $\color{red}{\textbf{Domain}}$ : for all devices
 
@@ -127,13 +129,13 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 
 You can manually run backup.sh in .android now or have a systemd timer do it. This will connect to all devices via ADB wireless and pull backups (apk + data without caches or no_backup).
 
-You're done! Enjoy your usable device!
+You're done! Enjoy your usable device(s)!
 
 # Useful stuff
 
 ## 💾 Static path for SD-Cards
 
-If you want the users SD-Card to be found in a fixed path you can use exfatlabel from exfatprogs to format the card with a fixed UUID like this:
+If you want the users SD-Card to be found in a fixed path you can use exfatlabel from exfatprogs to label the card with a fixed UUID like this:
 
     $sdcardDevicePart is f.e. /dev/sdb1 or /dev/mmbblk0p1 
 
