@@ -17,9 +17,16 @@ Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage device
 
 Turns your android phones into rooted, but secure and usuable domain clients. No Clouds and no management apps!
 
+# 🧘🏻 
 As a sideeffect i noticed after finishing this that not only you can lose or break a device now safely (good for the mind) - you can just keep one in every room, they are basically all the same now (good for the body).
 
-App Backup is still hit and miss, dont expect all that much, but if you use foss-friendly apps you wont run into issues much.
+## 🪺 App Backup 
+
+Still hit and miss, i need to debug and implement backing up SELinux-context and this will work for more and more apps while i use them, but may never be a general solution. Its a broad topic and solutions like Swift Backup already fail at my testcases too. If you have Apps that Swift Backup etc. wont backup correclty pls open an issue about them, so i have more testcases.
+
+# 🔴 Domain - 🔵 Machine - 🟢 User Workflow
+
+I use this color coded seperation in all of my infrastructure, you need to work on each section, but can scale each infinitely.
 
 # 👨‍🏭 $\color{red}{\textbf{Domain}}$ : for all devices
 
