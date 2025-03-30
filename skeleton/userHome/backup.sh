@@ -7,6 +7,13 @@ for deviceFolder in ./devices/*/; do
     deviceFolder="${deviceFolder%/}"
     device="${deviceFolder##*/}"
 
+    # Try to ping the device to check if it's reachable
+    if ! ping -c 1 -W 5 "$device" &> /dev/null; then
+        echo "Device $device is unreachable. Skipping..."
+        continue  # Skip this device and move to the next
+    fi
+
+
     adb connect $device:5555
 
     mkdir -p $deviceFolder/apks
@@ -68,7 +75,7 @@ for deviceFolder in ./devices/*/; do
                 mv $deviceFolder/appData/$app         $deviceFolder/appData/$app.oneday
 
                 mkdir -p $deviceFolder/appData/$app
-                
+
                 # cool hack to exclude caches
                 adb -s "$device:5555" shell "find /data/data/$app -type f ! -path '*cache*' ! -path '*no_backup*'" |
                 while read -r file; do
