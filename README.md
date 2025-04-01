@@ -205,7 +205,7 @@ This is a per-user setting, allows autostart:
 
 If you change / push settings.xml in /data/data/tld.package.name and the app crashes check if the u0_a123 uid is correct and run restorecon on files for SELinux-context to work. There is a little helper script in /functions to give you the uid for a tld.package.name
 
-Remember `restorecon -R` to simply fix a whole folder will NOT work on android (and not even tell you about that), you HAVE to explicitly restorecon any file you changed. If you need larger work consider su -c as the apps user before or use busybox.
+Remember `restorecon -R` to simply fix a whole folder will NOT work on android (and not even tell you about that), you HAVE to explicitly restorecon any file you changed. If you need larger work consider su -c as the apps user.
 
 ## Radicale CalDAV / CardDAV Auto-discovery
 
