@@ -6,25 +6,14 @@ if [ ! -s "skeleton/vanilla/settingsGlobal" ] || [ ! -s "skeleton/vanilla/settin
   exit 1
 fi
 
-functions/checkUserHasAdbAndRsyncLocally.sh
+functions/adbChecks.sh
 if [ $? -ne 0 ]; then
-    echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
+    echo "One ore more ADB checks failed"
     exit 1
 fi
 
-functions/checkAdbDeviceConnection.sh
-if [ $? -ne 0 ]; then
-    echo "🩻 Skeleton donor device not connected! Exiting..."
-    exit 1
-fi
+source ./functions/getUserIdFromPackageName.sh
 
-functions/checkAdbHasRoot.sh
-if [ $? -ne 0 ]; then
-    echo "🩻 Skeleton donor device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
-    exit 1
-fi
-
-echo ""
 
 
 adb shell settings list global > /tmp/settingsGlobal

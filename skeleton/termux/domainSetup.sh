@@ -6,7 +6,18 @@ sleep 2
 
 TERMUX_PKG_NO_MIRROR_SELECT=true
 
-yes | pkg install -y openssh termux-am rsync mc
+# Note that busybox is very crippled on android
+
+yes | pkg install -y openssh termux-am rsync mc busybox
+
+
+# DNS Stuff
+yes | pkg install -y dnsutils
+
+# Inotify-tools für Komfort-Funktion Camera-Sync
+
+yes | pkg install -y inotify-tools
+
 
 # openssh installs host-keys in /data/data/com.termux/files/user/etc/ssh
 

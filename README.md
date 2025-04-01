@@ -94,7 +94,7 @@ Then it runs all domain-tasks-scripts in skeleton/domainTasksScripts. See the fo
     
 1. `001-enableFixedAdbWirelessViaWiredAdb` - what the filename says, allows Port 5555 adb wireless. Don't worry, will still expect adb keys.
 2. `010-copyInternalStorageContent` - copies all files in `skeleton/internalStorage` to the internal storage via rsync (fast, can do gigabytes. Lineage provides rsync, see the script how it works if you like that. But as its rather complicated we use the sshd termux rsync later for backups)
-3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-CAs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details how to publish self-signed ED25519 CAs in your domain using opnsense or openwrt and a certs.webserver
+3. `100-grabDomainED25519CACerts` - this is not optimal yet or standarized RFC, but it asks the local DNS for the TXT-Records of self-signed ED25519-Certs for a set list of hosts (ca. ldap. and vpn.) then saves these to the device on `/sdcard/certs/` for use in OpenVPN and OpenLDAP. See the script for details on how to publish self-signed ED25519 CAs/Certs in your domain using opnsense or openwrt and a certs.webserver
 
 4. `200-openvpnConfig` - copying all files from `skeleton/openvpn` to `/sdcard/openvpn`. You find a generic profile.ovpn with comments on how to do it there.
 5. `201-openvpnDeviceCerts` - expects an easy-rsa style PKI-directory in `openvpnPKI/`, then copies the device fqdn cert from f.e. `openvpnPKI/private/$devicename.domain.tld.key` and `openvpnPKI/issued/$devicename.domain.tld.crt` to `/sdcard/openvpn/device.key`/`crt`  - the files are fixed called device.crt and device.key so you can apply a general profile across the fleet. If a ca.domain.tld record is found via DNS-TXT it will be copied to ca.crt.
@@ -132,8 +132,9 @@ The script then starts all user-tasks-script in skeleton/userTasksScripts:
 3. `010-installInputmethodPreferences` if found, copies `skeleton/com.android.inputmethod.latin_preferences.xml` to `/data/user_de/$MULTIUSERID/com.android.inputmethod.latin/shared_prefs/` to save you the resetup of the soft-keyboard ⌨️.
 4. `100-setupExternalStorage` expects termux to work. This looks for the UUID of the 💾 external SD (f.e. `/storage/1234-0512`) and symlinks it to `/data/data/com.termux/files/home/externalsd` - all backup scripts can use this path for backups / syncing of public shares without having to know the UUID in /storage. Do not sync userdata to the externalsd without 🐆 LUKS!
 5. `300-termuxSetupSSHKeys` if found, adds the users `.ssh/id_ed25519.pub` and `.ssh/id_ed25519_android.pub` to `/data/data/com.termux/files/home/.ssh/authorized_keys`
-6. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
-7. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip this if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
+6. `350-termuxComfortWatchDogCamera` - 📸 Installs the comfort camera addon. This works by creating an ssh-key on the device and allowing it to upload photos directly to the users Pictures/Camera folder (and nothing else!). Uses an inotify-watch started at boot, so is always available and lightning-fast instant!
+7. `400-davx5` - sets all permissions for DAVx5 already and stops nagging the user for donations until 2100-01-01
+8. `410-davx5-autodiscovery` - if autodiscovery (see useful stuff) works, adds the useraccount to davx5. You can skip this if the user is not present to type it in. RN you still have to click "Login" and enable the carddav/caldav sync - its the closest i could get it to work for now, sorry.
 
 # Provided userspace-scripts in ~/.android
 
@@ -202,7 +203,9 @@ This is a per-user setting, allows autostart:
 
 ### overwriting stuff in /data/data/tld.package.name
 
-If you change / push settings.xml in /data/data/tld.package.name and the app crashes check if the u0_a123 uid is correct and run restorecon -R on the folder for SELinux-context to restore. There is a little helper script in /functions to give you the uid for a tld.package.name
+If you change / push settings.xml in /data/data/tld.package.name and the app crashes check if the u0_a123 uid is correct and run restorecon on files for SELinux-context to work. There is a little helper script in /functions to give you the uid for a tld.package.name
+
+Remember `restorecon -R` to simply fix a whole folder will NOT work on android (and not even tell you about that), you HAVE to explicitly restorecon any file you changed. If you need larger work consider su -c as the apps user before or use busybox.
 
 ## Radicale CalDAV / CardDAV Auto-discovery
 

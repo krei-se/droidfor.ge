@@ -6,7 +6,7 @@ if ! command -v adb >/dev/null 2>&1; then
     exit 1
 fi
 
-echo "✅ adb is installed, continuing script..."
+#echo "✅ adb is installed, continuing script..."
 
 # Check if rsync is installed
 if ! command -v rsync >/dev/null 2>&1; then
@@ -14,4 +14,4 @@ if ! command -v rsync >/dev/null 2>&1; then
     exit 1
 fi
 
-echo "✅ rsync is installed, continuing script..."
+#echo "✅ rsync is installed, continuing script..."
