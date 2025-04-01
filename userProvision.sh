@@ -51,8 +51,12 @@ export DROIDFORGEAUTOPROVISIONDOMAIN
 DROIDFORGEAUTOPROVISIONUSERACCOUNT=$USERACCOUNT
 export DROIDFORGEAUTOPROVISIONUSERACCOUNT
 
+DROIDFORGEAUTOPROVISIONUSERNAME=$USERNAME
+export DROIDFORGEAUTOPROVISIONUSERNAME
+
 DROIDFORGEAUTOPROVISIONMULTIUSERID=$MULTIUSERID
 export DROIDFORGEAUTOPROVISIONMULTIUSERID
+
 
 
 echo -e "Device name to be userProvisioned is \033[0;34m$DEVICENAMEFQDN\033[0m - derived Host \033[0;34m$DEVICENAME\033[0m in Domain \033[0;31m$DOMAIN\033[0m"
@@ -81,6 +85,7 @@ if [ $? -ne 0 ]; then
     echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1
 fi
+
 
 # Try to lookup the user via LDAP or use ~ as USERHOME
 
@@ -121,3 +126,5 @@ if [[ -n "$LDAPHOME" && -n "$LDAPUID" && -n "$LDAPGROUPNAME" ]]; then
     chown -R $LDAPUID:$LDAPGROUP_NAME $LDAPHOME/.android/devices/$DEVICENAMEFQDN
 
 fi
+
+

@@ -1,22 +1,8 @@
 #!/bin/bash
 
-# Please remember these will get called with working directory droidfor.ge/ not skeleton/taskScripts
-
-functions/checkUserHasAdbAndRsyncLocally.sh
+functions/adbChecks.sh
 if [ $? -ne 0 ]; then
-    echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
-    exit 1
-fi
-
-functions/checkAdbDeviceConnection.sh
-if [ $? -ne 0 ]; then
-    echo "🍨Device not connected! Exiting..."
-    exit 1
-fi
-
-functions/checkAdbHasRoot.sh
-if [ $? -ne 0 ]; then
-    echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
+    echo "One ore more ADB checks failed"
     exit 1
 fi
 
@@ -38,33 +24,38 @@ if adb shell pm list packages | grep -q "com.termux.boot"; then
     if [ -f "skeleton/termux/.termux/boot/start-sshd" ]; then
 
         # allow termux to run in background. this is not an app permission, but deviceidle whitelist
-        adb shell dumpsys deviceidle whitelist +com.termux
+            adb shell dumpsys deviceidle whitelist +com.termux
         
-    
-        # start the start-sshd command in boot
-        adb shell "echo 0 > /data/data/com.termux/files/home/commandDone"
+        # Allow external Apps to communicate with Termux, needed for remotely running code inside termux
+
+            adb shell "sed -i 's/^# *allow-external-apps *= *false/allow-external-apps=true/' /data/data/com.termux/files/home/.termux/termux.properties"
+            adb shell "sed -i 's/^# *allow-external-apps *= *true/allow-external-apps=true/' /data/data/com.termux/files/home/.termux/termux.properties"
+
+        # run termux commands remotely, thanks to https://android.stackexchange.com/a/255725
+
+            adb shell "echo 0 > /data/data/com.termux/files/home/commandDone"
+
+            # start the start-sshd command in boot // thats "Owner", not root
+            adb shell /system/bin/am startservice --user 0 -n com.termux/com.termux.app.RunCommandService \
+            -a com.termux.RUN_COMMAND \
+            --es com.termux.RUN_COMMAND_PATH '/data/data/com.termux/files/usr/bin/bash' \
+            --esa com.termux.RUN_COMMAND_ARGUMENTS '-c,"/data/data/com.termux/files/home/.termux/boot/start-sshd && echo 1 > ~/commandDone"' \
+            --es com.termux.RUN_COMMAND_WORKDIR '/data/data/com.termux/files/home' \
+            --ez com.termux.RUN_COMMAND_BACKGROUND 'false' \
+            --es com.termux.RUN_COMMAND_SESSION_ACTION '0'
+
+            # Loop until Termux command is completed
+            while true; do
+                command_done=$(adb shell cat /data/data/com.termux/files/home/commandDone)
+                if [[ "$command_done" == "1" ]]; then
+                    echo "ran start-sshd"
+                    break
+                fi
+                sleep 1  # Check every second
+            done
+
+            adb shell "rm /data/data/com.termux/files/home/commandDone"
         
-        # run termux command               // thats "Owner", not root
-        adb shell /system/bin/am startservice --user 0 -n com.termux/com.termux.app.RunCommandService \
-        -a com.termux.RUN_COMMAND \
-        --es com.termux.RUN_COMMAND_PATH '/data/data/com.termux/files/usr/bin/bash' \
-        --esa com.termux.RUN_COMMAND_ARGUMENTS '-c,"/data/data/com.termux/files/home/.termux/boot/start-sshd && echo 1 > ~/commandDone"' \
-        --es com.termux.RUN_COMMAND_WORKDIR '/data/data/com.termux/files/home' \
-        --ez com.termux.RUN_COMMAND_BACKGROUND 'false' \
-        --es com.termux.RUN_COMMAND_SESSION_ACTION '0'
-
-        # Loop until Termux command is completed
-        while true; do
-            command_done=$(adb shell cat /data/data/com.termux/files/home/commandDone)
-            if [[ "$command_done" == "1" ]]; then
-                echo "ran start-sshd"
-                break
-            fi
-            sleep 1  # Check every second
-        done
-
-        adb shell "rm /data/data/com.termux/files/home/commandDone"
-    
         sleep 2
 
         # test sshd port 8022 open

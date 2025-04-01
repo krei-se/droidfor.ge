@@ -1,42 +1,25 @@
 #!/bin/bash
 
-# Please remember these will get called with working directory droidfor.ge/ not skeleton/taskScripts
-
-functions/checkUserHasAdbAndRsyncLocally.sh
+functions/adbChecks.sh
 if [ $? -ne 0 ]; then
-    echo "Please install adb and rsync. apt install android-tools-adb rsync Exiting..."
-    exit 1
-fi
-
-functions/checkAdbDeviceConnection.sh
-if [ $? -ne 0 ]; then
-    echo "🍨Device not connected! Exiting..."
-    exit 1
-fi
-
-functions/checkAdbHasRoot.sh
-if [ $? -ne 0 ]; then
-    echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
+    echo "One ore more ADB checks failed"
     exit 1
 fi
 
 source ./functions/getUserIdFromPackageName.sh
 
-# clear cache and data to make sure the script works from a fresh install
-    echo "Clearing data and cache for termux:"
-    adb shell pm clear com.termux
-    echo "Clearing data and cache for termux-boot:"
-    adb shell pm clear com.termux.boot
+# clear cache and data to make sure the script works from a fresh install - removed in prod
+#    echo "Clearing data and cache for termux:"
+#    adb shell pm clear com.termux
+#    echo "Clearing data and cache for termux-boot:"
+#    adb shell pm clear com.termux.boot
 
 # Allow notifications, if you want to see all permissions,
     # just diff this before and after applying the new permissions:
 
     # adb shell dumpsys package com.termux | grep "requested permissions:" -A 100
 
-
     #run adb shell pm list permissions -g com.termux
-
-    
     #run adb shell pm list permissions -d | grep com.termux
     
     adb shell pm grant com.termux android.permission.POST_NOTIFICATIONS
@@ -45,10 +28,11 @@ source ./functions/getUserIdFromPackageName.sh
 # Monkey start the app
     adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1
 
-echo "The Termux app should come up now, if you want to make sure all works, unlock the screen and watch the magic"
+    echo "The Termux app should come up now, if you want to make sure all works, unlock the screen and watch the magic"
 
-echo "Waiting 5 seconds for termux to bootstrap ..."
-sleep 5
+    echo "Waiting 5 seconds for termux to bootstrap ..."
+    sleep 5
+
 #read -n 1 -s -r -p "Make sure the screen is unlocked and termux is opened, then press any key to continue..."
 
 
@@ -60,25 +44,25 @@ sleep 5
     echo "User for $package: $user_id"
     echo "UID for $package: $uid"
     
-
 #    adb shell chown -R $user_id:$user_id /data/data/com.termux/files/home/
 
 # set the normal apt repository as its in Germany, Falkenstein
     adb shell ln -sf /data/data/com.termux/files/usr/etc/termux/mirrors/europe/packages.termux.dev /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
     adb shell chown -R $user_id:$user_id /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
+    adb shell "restorecon /data/data/com.termux/files/usr/etc/termux/chosen_mirrors"
 
     adb shell "echo 'deb https://packages.termux.dev/apt/termux-main stable main' > /data/data/com.termux/files/usr/etc/apt/sources.list"
     adb shell chown -R $user_id:$user_id /data/data/com.termux/files/usr/etc/apt/sources.list
     
     # not needed, but its good if you see this more on google. Fixes SELinux issues that will drive you MAD
-    adb shell "restorecon -R /data/data/com.termux/files/usr/etc/"
+    adb shell "restorecon /data/data/com.termux/files/usr/etc/apt/sources.list"
 
-# run termux commands remotely, thanks to https://android.stackexchange.com/a/255725
+# Allow external Apps to communicate with Termux, needed for remotely running code inside termux
 
     adb shell "sed -i 's/^# *allow-external-apps *= *false/allow-external-apps=true/' /data/data/com.termux/files/home/.termux/termux.properties"
     adb shell "sed -i 's/^# *allow-external-apps *= *true/allow-external-apps=true/' /data/data/com.termux/files/home/.termux/termux.properties"
 
-#    adb logcat -c  # Clear logs
+# run termux commands remotely, thanks to https://android.stackexchange.com/a/255725
 
     adb shell "echo 0 > /data/data/com.termux/files/home/commandDone"
 
@@ -101,4 +85,7 @@ sleep 5
         sleep 1  # Check every second
     done
 
-    adb shell input keyevent 3
+    adb shell "rm /data/data/com.termux/files/home/commandDone"
+
+
+adb shell input keyevent 3
