@@ -11,14 +11,14 @@ source ./functions/getUserIdFromPackageName.sh
 adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1
 
 
-nc -zv $DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN 8022 &> /dev/null
+DEVICESSHRUNNING=false
+export DEVICESSHRUNNING
 
-DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING=false
-export DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING
+nc -zv $DEVICENAMEFQDN 8022 &> /dev/null
 
 if [[ $? -eq 0 ]]; then
     echo "✅ sshd port 8022 is open on the device"
-    DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING=true
+    DEVICESSHRUNNING=true
     adb shell input keyevent 3
 
 else
@@ -27,7 +27,7 @@ else
     
 fi
 
-if [[ "$DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING" == true ]]; then
+if [[ "$DEVICESSHRUNNING" == true ]]; then
 
 
         package="com.termux"
@@ -39,9 +39,9 @@ if [[ "$DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING" == true ]]; then
         echo "UID for $package: $uid"
 
 
-    if [ -f "$DROIDFORGEAUTOPROVISIONUSERHOME/.ssh/id_ed25519.pub" ]; then
+    if [ -f "$USERHOME/.ssh/id_ed25519.pub" ]; then
 
-        SSH_KEY=$(cat "$DROIDFORGEAUTOPROVISIONUSERHOME/.ssh/id_ed25519.pub")
+        SSH_KEY=$(cat "$USERHOME/.ssh/id_ed25519.pub")
         adb shell "mkdir -p /data/data/com.termux/files/home/.ssh"
         
         # Add the public key to the authorized_keys file
@@ -58,9 +58,9 @@ if [[ "$DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING" == true ]]; then
     fi
 
     # copy a second key ending in _android - useful for unlocked ssh keys for syncing
-    if [ -f "$DROIDFORGEAUTOPROVISIONUSERHOME/.ssh/id_ed25519_android.pub" ]; then
+    if [ -f "$USERHOME/.ssh/id_ed25519_android.pub" ]; then
 
-        SSH_KEY=$(cat "$DROIDFORGEAUTOPROVISIONUSERHOME/.ssh/id_ed25519_android.pub")
+        SSH_KEY=$(cat "$USERHOME/.ssh/id_ed25519_android.pub")
         adb shell "mkdir -p /data/data/com.termux/files/home/.ssh"
         
         # Add the public key to the authorized_keys file

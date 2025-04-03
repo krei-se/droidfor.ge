@@ -23,8 +23,8 @@ source ./functions/getUserIdFromPackageName.sh
 
 CERTHOSTS=("ca" "ldap" "vpn")
 
-if [[ -z "$DROIDFORGEAUTOPROVISIONDOMAIN" ]]; then
-    echo "Do not run this script outside adminAutoProvision, youll miss the DROIDFORGEAUTOPROVISIONDOMAIN env"
+if [[ -z "$DOMAIN" ]]; then
+    echo "Do not run this script outside adminAutoProvision, youll miss the DOMAIN env"
     exit 1
 fi
 
@@ -33,19 +33,19 @@ adb shell "mkdir -p /sdcard/certs"
 # Loop through each host in the CERTHOSTS array
 for certhost in "${CERTHOSTS[@]}"; do
     # Query the TXT record for the ed25519._tlsa.<host>.<domain> and retrieve the URL
-    URL=$(dig +short TXT "ed25519._tlsa.${certhost}.${DROIDFORGEAUTOPROVISIONDOMAIN}" | sed 's/"//g')
+    URL=$(dig +short TXT "ed25519._tlsa.${certhost}.${DOMAIN}" | sed 's/"//g')
 
     # Check if URL was found
     if [ -z "$URL" ]; then
-        echo "Error: No URL found for $certhost.$DROIDFORGEAUTOPROVISIONDOMAIN"
+        echo "Error: No URL found for $certhost.$DOMAIN"
         continue
     fi
 
     # Download the certificate using curl
-    curl -o "/tmp/$certhost.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" "$URL"
+    curl -o "/tmp/$certhost.$DOMAIN.crt" "$URL"
     
     # Push the certificate to the device
-    adb push "/tmp/$certhost.$DROIDFORGEAUTOPROVISIONDOMAIN.crt" /sdcard/certs/
+    adb push "/tmp/$certhost.$DOMAIN.crt" /sdcard/certs/
 done
 
 adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/

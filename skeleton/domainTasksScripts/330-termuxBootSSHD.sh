@@ -58,15 +58,40 @@ if adb shell pm list packages | grep -q "com.termux.boot"; then
         
         sleep 2
 
-        # test sshd port 8022 open
-        nc -zv $DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN 8022 &> /dev/null
 
-        DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING=false
-        export DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING
+        DEVICESSHRUNNING=false
+        export DEVICESSHRUNNING
+
+        FOUNDIP=false
+        FIXEDIP_ADDRESS=""
+
+        while [[ $FOUNDIP == false ]]; do
+            # Resolve the current IP from the FQDN
+            FIXEDIP_ADDRESS=$(dig +short $DEVICENAMEFQDN | head -n 1)
+
+            # Ping the resolved IP to see if it's reachable
+            ping -c 1 -W 2 $FIXEDIP_ADDRESS &> /dev/null
+
+            if [[ $? -eq 0 ]]; then
+                # If ping succeeds, print the IP address
+                echo "Device is reachable at IP: $FIXEDIP_ADDRESS"
+                FOUNDIP=true
+            else
+                echo "Failed to reach device at IP: $FIXEDIP_ADDRESS, trying again..."
+                sleep 2
+            fi
+        done
+
+        echo "Device likely ... found at IP: $FIXEDIP_ADDRESS"
+
+        export FIXEDIP_ADDRESS
+
+        # test sshd port 8022 open
+        nc -zv -w 5 "${FIXEDIP_ADDRESS}" 8022 &> /dev/null
 
         if [[ $? -eq 0 ]]; then
             echo "✅ sshd port 8022 is open on the device"
-            DROIDFORGEAUTOPROVISIONDEVICESSHRUNNING=true
+            DEVICESSHRUNNING=true
             adb shell input keyevent 3
 
         else

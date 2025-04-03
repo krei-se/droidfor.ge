@@ -13,7 +13,7 @@ mkdir -p skeleton/internalStorage/Ringtones
 curl -L https://archive.org/download/tvtunes_26263/Archer%20-%20Mulatto%20Butts.ogg -o skeleton/internalStorage/Ringtones/mulattobutts.ogg
 
 # creates a remote rsync service on the adb enabled device, then forwards the port.
-adb push skeleton/adminTasksScripts/remoteRsync.conf /sdcard/remoteRsync.conf
+adb push skeleton/domainTasksScripts/remoteRsync.conf /sdcard/remoteRsync.conf
 adb forward tcp:2137 tcp:2137
 
 adb shell "su -c 'rsync --daemon --config=/sdcard/remoteRsync.conf &'"
