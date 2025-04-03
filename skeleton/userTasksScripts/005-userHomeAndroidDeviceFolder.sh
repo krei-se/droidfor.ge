@@ -8,11 +8,11 @@ fi
 
 source ./functions/getUserIdFromPackageName.sh
 
-cp skeleton/userHome/* $DROIDFORGEAUTOPROVISIONUSERHOME/.android
+cp skeleton/userHome/* $USERHOME/.android
 
 
-mkdir -p "$DROIDFORGEAUTOPROVISIONUSERHOME/.android/devices/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN"
+mkdir -p "$USERHOME/.android/devices/$DEVICENAMEFQDN"
 
-if [ ! -f $DROIDFORGEAUTOPROVISIONUSERHOME/.android/devices/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN/applist ]; then
-    cp skeleton/userHome/applist.example    $DROIDFORGEAUTOPROVISIONUSERHOME/.android/devices/$DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN/applist
+if [ ! -f $USERHOME/.android/devices/$DEVICENAMEFQDN/applist ]; then
+    cp skeleton/userHome/applist.example    $USERHOME/.android/devices/$DEVICENAMEFQDN/applist
 fi

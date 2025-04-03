@@ -8,4 +8,4 @@ fi
 
 source ./functions/getUserIdFromPackageName.sh
 
-cp skeleton/userHome/* $DROIDFORGEAUTOPROVISIONUSERHOME/.android
+cp skeleton/userHome/* $USERHOME/.android

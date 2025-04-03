@@ -8,7 +8,7 @@ fi
 
 source ./functions/getUserIdFromPackageName.sh
 
-MULTIUSERID=$DROIDFORGEAUTOPROVISIONMULTIUSERID
+MULTIUSERID=$MULTIUSERID
 if [ -z MULTIUSERID ]; then
     MULTIUSERID=0
 fi

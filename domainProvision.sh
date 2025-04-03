@@ -19,6 +19,7 @@ if [[ -z "$1" ]]; then
 fi
 
 DEVICENAMEFQDN=$1
+export DEVICENAMEFQDN
 
 # Check if DEVICENAMEFQDN has at least two dots (indicating a valid FQDN)
 DOT_COUNT=$(echo "$DEVICENAMEFQDN" | awk -F'.' '{print NF-1}')
@@ -28,17 +29,12 @@ if [ "$DOT_COUNT" -lt 2 ]; then
     exit 1
 fi
 
-DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN=$DEVICENAMEFQDN
-export DROIDFORGEAUTOPROVISIONDEVICENAMEFQDN
 
 DEVICENAME=$(echo "$DEVICENAMEFQDN" | cut -d'.' -f1)
-DROIDFORGEAUTOPROVISIONDEVICENAME=$DEVICENAME
-export DROIDFORGEAUTOPROVISIONDEVICENAME
+export DEVICENAME
 
 DOMAIN=$(echo "$DEVICENAMEFQDN" | cut -d'.' -f2-)
-
-DROIDFORGEAUTOPROVISIONDOMAIN=$DOMAIN
-export DROIDFORGEAUTOPROVISIONDOMAIN
+export DOMAIN
 
 echo -e "Device name to be domainProvisioned is \033[0;34m$DEVICENAMEFQDN\033[0m - derived Host \033[0;34m$DEVICENAME\033[0m in Domain \033[0;31m$DOMAIN\033[0m"
 
@@ -61,7 +57,11 @@ echo -e "Installing Initial Apps \n"
 
 ./installInitialApps.sh
 
+adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1
+
 read -n 1 -s -r -p "Make sure the device is rooted, then press any key to continue..."
+
+adb shell input keyevent 3
 
 echo -e "Checking if the device is rooted ... \n"
 
@@ -70,7 +70,6 @@ if [ $? -ne 0 ]; then
     echo "🍨Device is not running in adb rooted mode! Install and setup Magisk. Exiting..."
     exit 1
 fi
-
 
 echo "Applying skeleton settings \n"
 
