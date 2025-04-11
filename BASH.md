@@ -2,6 +2,25 @@
 
 Bash Tutorial that actually makes sense
 
+Dont use camelCase in bash, error prone in weak quoting.
+
+Use small_snake vars if you don't plan to export outside the function or script
+
+use UPPER_SNAKE vars if you export later.
+
+source script.sh will include the script in the same context / process
+
+./script.sh will spawn a new thread, thus not import any exports
+
+## Functions
+
+you cannot return Variables in bash, only return values 1 (error) and 0 (success). Echo all output and parse
+an array if needed. See IFS for more on that
+
+## Types
+
+Bash is string only, all integer comparism with -gt and -lt are type-coercions
+
 ## Conditions
 
 ### Integers

@@ -1,0 +1,13 @@
+[domain]
+name=
+
+[machine]
+adbName=
+
+[user]
+name=
+
+[ldap]
+uri=ldaps:///ldap
+lookupDN="cn=lookup,ou=Services,dc=domain,dc=tld"
+lookupPass=

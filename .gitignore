@@ -2,7 +2,4 @@ initialApps/**
 !initialApps/.gitkeep
 openvpnPKI/**
 !openvpnPKI/.gitkeep
-skeleton/vanilla/*
-skeleton/internalStorage/*
-!skeleton/vanilla/.gitkeep
-!skeleton/internalStorage/.gitkeep
+ldapconfig.ini

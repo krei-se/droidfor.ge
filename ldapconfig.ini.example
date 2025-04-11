@@ -1,0 +1,5 @@
+LDAP_URI=ldaps://ldap.domain.tld/
+LDAP_baseDN=dc=domain,dc=tld
+LDAP_lookupDN=cn=lookup,ou=services,dc=domain,dc=tld
+LDAP_lookupPass=lookuppasswordhere
+

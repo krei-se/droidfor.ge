@@ -5,7 +5,11 @@
 - Visit <a href="https://krei.se">Krei.se</a> for updates and how to build a free managed domain (german)
 - <a href="https://krei.se/Blog/0ff-personaldevice/050-Mobiles">Buyers Guide for tested phones (german)</a> 
 
-### Auto provisioning, Syncing and Backup/Restore for android fleet devices.
+Currently a rewrite is in progress to make droidfor.ge easier to use with a GUI
+
+!(GUI)[https://github.com/krei-se/droidfor.ge/menu.png]
+
+### Auto provisioning and syncing for android fleet devices.
 
 Built for Phones with unlockable bootloaders, thus rootable o-O-o lineage devices, also SD-Cards and A/B Slot Support (Motorola and Sony mostly)
 
@@ -22,7 +26,7 @@ As a sideeffect i noticed after finishing this that not only you can lose or bre
 
 ## 🪺 App Backup 
 
-Still hit and miss, i need to debug and implement backing up SELinux-context and this will work for more and more apps while i use them, but may never be a general solution. Its a broad topic and solutions like Swift Backup already fail at my testcases too. If you have Apps that Swift Backup etc. wont backup correclty pls open an issue about them, so i have more testcases.
+Still hit and miss and kinda not part of this project - i need to debug and implement backing up SELinux-context and this will work for more and more apps while i use them, but may never be a general solution. Its a broad topic and solutions like Swift Backup already fail at my testcases too. If you have Apps that Swift Backup etc. wont backup correclty pls open an issue about them, so i have more testcases.
 
 # 🔴 Domain - 🔵 Machine - 🟢 User Workflow
 

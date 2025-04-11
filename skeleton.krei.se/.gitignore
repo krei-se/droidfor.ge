@@ -1,0 +1,9 @@
+vanillaSettingsDump/*
+internalStorage/*
+!vanillaSettingsDump/.gitkeep
+!internalStorage/.gitkeep
+
+com.android.inputmethod.latin_preferences.xml
+settingsGlobal
+settingsSecure
+settingsSystem
