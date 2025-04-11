@@ -7,7 +7,7 @@
 
 Currently a rewrite is in progress to make droidfor.ge easier to use with a GUI
 
-![GUI](https://github.com/krei-se/droidfor.ge/menu.png)
+![GUI](https://raw.githubusercontent.com/krei-se/droidfor.ge/refs/heads/main/menu.png)
 
 ### Auto provisioning and syncing for android fleet devices.
 
