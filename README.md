@@ -7,6 +7,12 @@
 
 Currently a rewrite is in progress to make droidfor.ge easier to use with a GUI
 
+This project is thus to be considered in a NONWORKING STATE until i rotate my workflow back to cyan space again.
+
+Notes to fix:
+
+- Do RFC 6698 for the ed25519 cert
+
 ![GUI](https://raw.githubusercontent.com/krei-se/droidfor.ge/refs/heads/main/menu.png)
 
 ### Auto provisioning and syncing for android fleet devices.
