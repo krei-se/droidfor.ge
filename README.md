@@ -3,7 +3,7 @@
 ### Bend your Androids juuust right
 
 - Visit <a href="https://krei.se">Krei.se</a> for updates and how to build a free managed domain (german)
-- <a href="https://krei.se/Blog/0ff-personaldevice/050-Mobiles">Buyers Guide for tested phones (german)</a> 
+- <a href="https://krei.se/Doc/personaldevice/050-Mobiles">Buyers Guide for tested phones (german)</a> 
 
 Currently a rewrite is in progress to make droidfor.ge easier to use with a GUI
 
